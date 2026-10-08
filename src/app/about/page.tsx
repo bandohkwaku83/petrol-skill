@@ -6,7 +6,7 @@ import { Button } from "@/components/Button";
 import { PageHero } from "@/components/PageHero";
 import { SectionHeading } from "@/components/SectionHeading";
 import { CountUp, FloatCard, Magnetic, Reveal } from "@/components/motion";
-import { leadership, stats, values } from "@/data/content";
+import { leadership, stats, values, whyExists } from "@/data/content";
 
 export default function AboutPage() {
   return (
@@ -21,18 +21,18 @@ export default function AboutPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-20 md:grid-cols-2 md:px-8 md:py-28">
           <Reveal>
             <SectionHeading
-              eyebrow="Our Story"
-              title="From LMS confusion to a professional institute experience"
-              description="Our previous website reflected a Tutor LMS model. Today we operate as a training institute: live cohorts, expert instructors, clear registration via Microsoft Forms, and partnerships that keep programs industry-relevant."
+              eyebrow="Why PVL exists"
+              title={whyExists.title}
+              description={whyExists.body}
             />
           </Reveal>
           <Reveal delay={0.15}>
             <div className="relative aspect-[4/3] overflow-hidden">
               <Image
-                src="/images/group-02.jpg"
-                alt="Team collaboration"
+                src="/images/why-pvl-team.jpg"
+                alt="PetroSkill team in safety gear"
                 fill
-                className="object-cover"
+                className="object-cover object-[center_30%]"
                 sizes="(max-width:768px) 100vw, 50vw"
               />
               <motion.div
@@ -118,17 +118,17 @@ export default function AboutPage() {
               title="People shaping PVL’s programs and partnerships"
             />
           </Reveal>
-          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
             {leadership.map((person, i) => (
               <FloatCard key={person.name} delay={0.08 * i}>
                 <article className="overflow-hidden bg-white">
-                  <div className="relative aspect-[4/5] overflow-hidden">
+                  <div className="relative aspect-[5/7] overflow-hidden">
                     <Image
                       src={person.image}
                       alt={person.name}
                       fill
-                      className="object-cover transition duration-700 hover:scale-105"
-                      sizes="(max-width:768px) 50vw, 25vw"
+                      className="origin-top object-cover object-top transition duration-700 hover:scale-105"
+                      sizes="(max-width:768px) 100vw, 33vw"
                     />
                   </div>
                   <div className="p-5">
@@ -138,21 +138,11 @@ export default function AboutPage() {
                     <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.16em] text-orange">
                       {person.role}
                     </p>
-                    <p className="mt-3 text-sm text-muted">{person.bio}</p>
                   </div>
                 </article>
               </FloatCard>
             ))}
           </div>
-          <Reveal className="mt-12 border border-dashed border-navy/20 bg-white p-8 text-center">
-            <h3 className="font-[family-name:var(--font-display)] text-xl font-semibold text-navy">
-              Advisory Board
-            </h3>
-            <p className="mx-auto mt-2 max-w-xl text-sm text-muted">
-              Industry advisors support curriculum relevance and partnership strategy.
-              Profiles will be published as appointments are confirmed.
-            </p>
-          </Reveal>
           <Reveal delay={0.1} className="mt-10 flex justify-center">
             <Magnetic>
               <Button href="/contact" variant="orange">

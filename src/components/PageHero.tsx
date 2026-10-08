@@ -9,31 +9,39 @@ export function PageHero({
   title,
   description,
   image,
+  artwork,
   actions,
 }: {
   title: string;
   description?: string;
-  image: string;
+  image?: string;
+  artwork?: ReactNode;
   actions?: ReactNode;
 }) {
   return (
     <section className="grain relative flex min-h-[78vh] items-end overflow-hidden text-white">
       <div className="absolute inset-0">
-        <motion.div
-          className="absolute inset-0"
-          initial={{ scale: 1.12 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <Image
-            src={image}
-            alt=""
-            fill
-            priority
-            className="ken-burns object-cover object-[center_18%]"
-            sizes="100vw"
-          />
-        </motion.div>
+        {artwork ? (
+          <div className="absolute inset-0 bg-navy">{artwork}</div>
+        ) : image ? (
+          <motion.div
+            className="absolute inset-0"
+            initial={{ scale: 1.12 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Image
+              src={image}
+              alt=""
+              fill
+              priority
+              className="ken-burns object-cover object-[center_18%]"
+              sizes="100vw"
+            />
+          </motion.div>
+        ) : (
+          <div className="absolute inset-0 bg-navy" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/70 to-navy/40" />
         <div className="absolute inset-0 bg-gradient-to-r from-navy/70 via-transparent to-transparent" />
         <Aurora />

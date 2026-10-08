@@ -25,7 +25,7 @@ export function Footer() {
             Explore
           </h3>
           <ul className="mt-4 space-y-2 text-sm text-white/70">
-            {navLinks.slice(1, 6).map((link) => (
+            {navLinks.slice(0, 5).map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className="hover:text-white">
                   {link.label}
@@ -60,6 +60,11 @@ export function Footer() {
                 Gallery
               </Link>
             </li>
+            <li>
+              <Link href="/testimonials" className="hover:text-white">
+                Testimonials
+              </Link>
+            </li>
           </ul>
         </div>
 
@@ -78,13 +83,40 @@ export function Footer() {
                 {site.phone}
               </a>
             </li>
+            <li>
+              <a
+                href={`https://wa.me/${site.whatsapp.replace("+", "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white"
+              >
+                WhatsApp
+              </a>
+            </li>
             <li>{site.address}</li>
           </ul>
+          <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-white/70">
+            <a href={site.social.linkedin} className="hover:text-white">
+              LinkedIn
+            </a>
+            <a href={site.social.facebook} className="hover:text-white">
+              Facebook
+            </a>
+            <a href={site.social.youtube} className="hover:text-white">
+              YouTube
+            </a>
+            <a href={site.social.twitter} className="hover:text-white">
+              X
+            </a>
+          </div>
         </div>
       </div>
       <div className="border-t border-white/10">
-        <div className="mx-auto max-w-7xl px-5 py-5 text-xs text-white/40 md:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5 text-xs text-white/40 md:px-8">
           <p>© {new Date().getFullYear()} PetroSkill Virtual Learning</p>
+          <Link href="/admin" className="hover:text-white">
+            Admin
+          </Link>
         </div>
       </div>
     </footer>

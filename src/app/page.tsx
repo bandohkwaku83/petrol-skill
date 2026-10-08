@@ -4,11 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/Button";
+import { useState } from "react";
+import { CourseArt } from "@/components/CourseArt";
+import { PaymentDialog } from "@/components/PaymentDialog";
 import { ProfileIcon } from "@/components/ProfileIcon";
 import { SectionHeading } from "@/components/SectionHeading";
 import {
   Aurora,
-  CountUp,
   FloatCard,
   Magnetic,
   Reveal,
@@ -16,15 +18,15 @@ import {
 } from "@/components/motion";
 import {
   courses,
-  news,
+  partners,
   site,
-  stats,
   testimonials,
-  whyChoose,
+  type Course,
 } from "@/data/content";
 
 export default function HomePage() {
   const featured = courses.filter((c) => c.featured).slice(0, 4);
+  const [active, setActive] = useState<Course | null>(null);
 
   return (
     <>
@@ -54,7 +56,7 @@ export default function HomePage() {
         <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 pt-36 md:px-8 md:pb-24">
           <div>
             <SplitHeadline
-              className="max-w-5xl font-[family-name:var(--font-display)] text-[clamp(2.75rem,7.5vw,6rem)] font-semibold leading-[0.94] tracking-[-0.03em]"
+              className="max-w-4xl font-[family-name:var(--font-display)] text-[clamp(2rem,4.6vw,3.75rem)] font-semibold leading-[1.02] tracking-[-0.03em]"
               lines={[
                 "Live training for",
                 "energy careers",
@@ -87,7 +89,7 @@ export default function HomePage() {
             </Magnetic>
             <Magnetic>
               <Button href="/internship" variant="secondary">
-                Virtual internship
+                Internship openings
               </Button>
             </Magnetic>
           </motion.div>
@@ -142,7 +144,7 @@ export default function HomePage() {
                       [
                         "Instructor-led on Microsoft Teams",
                         "Case studies from real operating contexts",
-                        "Register via Microsoft Forms in minutes",
+                        "Pay with Paystack or Accrue, then join",
                       ][i]
                     }
                   </p>
@@ -166,7 +168,7 @@ export default function HomePage() {
               <SectionHeading
                 eyebrow="Featured programs"
                 title="Upcoming live cohorts"
-                description="Pick a course. Register on Microsoft Forms. Join the classroom."
+                description="Tap a course to pay with Paystack or Accrue. The join link appears after payment."
               />
             </Reveal>
             <Reveal delay={0.15}>
@@ -179,35 +181,27 @@ export default function HomePage() {
         <div className="course-rail px-5 md:px-8 lg:pl-[max(2rem,calc((100vw-80rem)/2+2rem))]">
           {featured.map((course, i) => (
             <FloatCard key={course.slug} delay={i * 0.08}>
-              <Link
-                href={`/courses/${course.slug}`}
-                className="group relative block overflow-hidden bg-navy text-white"
+              <button
+                type="button"
+                onClick={() => setActive(course)}
+                className="group block w-full overflow-hidden bg-white text-left text-white"
               >
-                <div className="relative aspect-[16/10]">
-                  <Image
-                    src={course.image}
-                    alt={course.title}
-                    fill
-                    className="object-cover transition duration-700 group-hover:scale-110"
-                    sizes="360px"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/45 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-6">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-orange-soft">
-                      0{i + 1} · {course.duration}
-                    </p>
-                    <h3 className="mt-2 font-[family-name:var(--font-display)] text-xl font-semibold leading-tight">
-                      {course.title}
-                    </h3>
-                    <p className="mt-3 text-sm text-white/70">
-                      Starts {course.startDate} · {course.fee}
-                    </p>
-                    <span className="mt-5 inline-block text-xs font-bold uppercase tracking-[0.16em] text-white transition group-hover:text-orange-soft">
-                      View details →
-                    </span>
-                  </div>
+                <CourseArt className="h-28 sm:h-40" />
+                <div className="bg-navy p-4 sm:p-6">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-orange-soft">
+                    0{i + 1} · {course.duration}
+                  </p>
+                  <h3 className="mt-2 font-[family-name:var(--font-display)] text-base font-semibold leading-tight sm:text-xl">
+                    {course.title}
+                  </h3>
+                  <p className="mt-3 text-sm text-white/70">
+                    Starts {course.startDate} · {course.fee}
+                  </p>
+                  <span className="mt-5 inline-block text-xs font-bold uppercase tracking-[0.16em] text-white transition group-hover:text-orange-soft">
+                    Pay to join →
+                  </span>
                 </div>
-              </Link>
+              </button>
             </FloatCard>
           ))}
         </div>
@@ -217,13 +211,13 @@ export default function HomePage() {
       <section className="grain relative overflow-hidden text-white">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=2000&q=80"
-            alt="Young professionals collaborating in a virtual learning session"
+            src="/images/flagship-session.jpg"
+            alt="Student in a live virtual session"
             fill
-            className="object-cover object-center"
+            className="object-cover object-[center_55%]"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-navy/78" />
+          <div className="absolute inset-0 bg-gradient-to-r from-navy/92 via-navy/70 to-navy/50" />
           <Aurora />
         </div>
         <div className="relative mx-auto grid max-w-7xl gap-12 px-5 py-24 md:grid-cols-2 md:px-8 md:py-32">
@@ -239,18 +233,18 @@ export default function HomePage() {
               </span>
             </h2>
             <p className="mt-6 max-w-md text-base leading-relaxed text-white/75 md:text-lg">
-              Six weeks. Live mentors. Industry speakers. A capstone you can talk about in
-              interviews — not a certificate collecting dust.
+              Internships are posted when a cohort opens. Live mentors, industry speakers,
+              and a capstone you can talk about in interviews.
             </p>
             <div className="mt-10 flex flex-wrap gap-3">
               <Magnetic>
-                <Button href={site.registrationForm} variant="orange" external>
-                  Register now
+                <Button href="/internship" variant="orange">
+                  See openings
                 </Button>
               </Magnetic>
               <Magnetic>
-                <Button href="/internship" variant="secondary">
-                  See the program
+                <Button href={site.waitlistForm} variant="secondary" external>
+                  Join waitlist
                 </Button>
               </Magnetic>
             </div>
@@ -269,72 +263,6 @@ export default function HomePage() {
                 </div>
               </Reveal>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Why */}
-      <section className="bg-sand py-20 md:py-28">
-        <div className="mx-auto max-w-7xl px-5 md:px-8">
-          <Reveal>
-            <SectionHeading
-              eyebrow="Why PVL"
-              title="Clarity over noise. Practice over shortcuts."
-            />
-          </Reveal>
-          <div className="mt-16 grid gap-x-10 gap-y-12 md:grid-cols-2">
-            {whyChoose.map((item, i) => (
-              <Reveal key={item.title} delay={0.08 * i}>
-                <div className="group border-t border-navy/15 pt-6">
-                  <motion.p
-                    className="font-[family-name:var(--font-display)] text-5xl font-semibold text-orange/35"
-                    whileHover={{ color: "var(--pvl-orange)", scale: 1.05 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    0{i + 1}
-                  </motion.p>
-                  <h3 className="mt-4 font-[family-name:var(--font-display)] text-2xl font-semibold text-navy">
-                    {item.title}
-                  </h3>
-                  <p className="mt-3 max-w-sm text-muted">{item.description}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="relative overflow-hidden bg-navy text-white">
-        <div className="relative mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-12">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
-            <Reveal className="shrink-0 text-center lg:text-left">
-              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-orange-soft">
-                Impact
-              </p>
-              <h2 className="mt-2 font-[family-name:var(--font-display)] text-xl font-semibold tracking-tight md:text-2xl">
-                Training professionals worldwide
-              </h2>
-            </Reveal>
-
-            <div className="grid flex-1 grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-5 lg:gap-0">
-              {stats.map((stat, i) => (
-                <Reveal
-                  key={stat.label}
-                  delay={0.05 * i}
-                  className={`text-center lg:px-4 ${
-                    i > 0 ? "lg:border-l lg:border-white/10" : ""
-                  }`}
-                >
-                  <CountUp
-                    value={stat.value}
-                    label={stat.label}
-                    variant="dark"
-                    compact
-                  />
-                </Reveal>
-              ))}
-            </div>
           </div>
         </div>
       </section>
@@ -379,59 +307,43 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* News */}
-      <section className="bg-background py-20 md:py-28">
+      {/* Partners */}
+      <section className="bg-sand py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <Reveal>
-            <SectionHeading eyebrow="News" title="What’s moving at PVL" />
+            <p className="text-center text-[11px] font-bold uppercase tracking-[0.28em] text-orange">
+              Partners
+            </p>
           </Reveal>
-          <div className="mt-12 grid gap-6 lg:grid-cols-12">
-            <FloatCard className="lg:col-span-7">
-              <Link
-                href={`/news/${news[0].slug}`}
-                className="group relative block min-h-[420px] overflow-hidden"
-              >
-                <Image
-                  src={news[0].image}
-                  alt={news[0].title}
-                  fill
-                  className="object-cover transition duration-700 group-hover:scale-105"
-                  sizes="(max-width:1024px) 100vw, 60vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/30 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-8 text-white">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-orange-soft">
-                    {news[0].category}
-                  </p>
-                  <h3 className="mt-3 font-[family-name:var(--font-display)] text-2xl font-semibold md:text-3xl">
-                    {news[0].title}
-                  </h3>
+          <Reveal delay={0.1}>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-6">
+              {partners.map((partner) => (
+                <div key={partner.name} className="bg-black px-8 py-5">
+                  <Image
+                    src={partner.logo}
+                    alt={partner.name}
+                    width={429}
+                    height={147}
+                    className="h-14 w-auto md:h-16"
+                  />
                 </div>
-              </Link>
-            </FloatCard>
-            <div className="flex flex-col gap-6 lg:col-span-5">
-              {news.slice(1).map((item, i) => (
-                <FloatCard key={item.slug} delay={0.1 * (i + 1)} className="flex-1">
-                  <Link
-                    href={`/news/${item.slug}`}
-                    className="group flex h-full flex-col justify-between border border-navy/10 bg-white p-6 transition hover:border-orange/40"
-                  >
-                    <div>
-                      <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-orange">
-                        {item.category}
-                      </p>
-                      <h3 className="mt-3 font-[family-name:var(--font-display)] text-xl font-semibold text-navy group-hover:text-blue">
-                        {item.title}
-                      </h3>
-                    </div>
-                    <p className="mt-4 text-sm text-muted">{item.date}</p>
-                  </Link>
-                </FloatCard>
               ))}
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
+      {active ? (
+        <PaymentDialog
+          kind="course"
+          slug={active.slug}
+          title={active.title}
+          fee={active.fee}
+          eyebrow="Course payment"
+          joinLabel="Join the course"
+          returnTo={null}
+          onClose={() => setActive(null)}
+        />
+      ) : null}
     </>
   );
 }

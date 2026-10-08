@@ -1,212 +1,188 @@
-"use client";
-
-import Image from "next/image";
+import type { Metadata } from "next";
 import { Button } from "@/components/Button";
 import { PageHero } from "@/components/PageHero";
 import { SectionHeading } from "@/components/SectionHeading";
-import { Aurora, FloatCard, Magnetic, Reveal } from "@/components/motion";
-import { internship, site, testimonials } from "@/data/content";
+import { Magnetic, Reveal } from "@/components/motion";
+import { internshipPostings, site } from "@/data/content";
+import { InternshipBoard } from "./InternshipBoard";
+
+const openPostings = internshipPostings.filter((posting) => posting.status === "open");
+const closedPostings = internshipPostings.filter((posting) => posting.status === "closed");
+
+export const metadata: Metadata = {
+  title: "Internship openings",
+  description:
+    "Internships are posted on this board only when a cohort is open for applications.",
+};
 
 export default function InternshipPage() {
+  const openCount = openPostings.length;
+
   return (
     <>
       <PageHero
-        title="Virtual Internship for emerging energy professionals"
-        description={internship.overview}
-        image="/images/cta-thumbs-up.png"
+        title="Internships are posted here when a cohort opens"
+        description="This page is a board. An open internship card takes payment with Paystack or Accrue. After payment, the join link appears. Between cohorts, the board stays clear."
+        image="/images/group-02.jpg"
         actions={
           <>
             <Magnetic>
-              <Button href={site.registrationForm} variant="orange" external>
-                Register Now
+              <Button href="#board" variant="orange">
+                {openCount === 0 ? "Check the board" : "See what’s posted"}
               </Button>
             </Magnetic>
             <Magnetic>
               <Button href={site.waitlistForm} variant="secondary" external>
-                Join Waitlist
+                Join waitlist
               </Button>
             </Magnetic>
           </>
         }
       />
 
-      <section className="bg-white">
+      <section className="border-b border-navy/8 bg-sand">
+        <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:grid-cols-3 md:px-8">
+          <StatusFact
+            label="Open now"
+            value={openCount === 0 ? "None" : String(openCount).padStart(2, "0")}
+          />
+          <StatusFact
+            label="Last posted"
+            value={internshipPostings[0]?.posted ?? "—"}
+          />
+          <StatusFact label="Between intakes" value="Board stays empty" />
+        </div>
+      </section>
+
+      <section id="board" className="bg-white">
         <div className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
           <Reveal>
             <SectionHeading
-              eyebrow="Learning Objectives"
-              title="What you will walk away with"
+              eyebrow="Board"
+              title={openCount === 0 ? "Nothing is posted" : "Open for applications"}
+              description={
+                openCount === 0
+                  ? "New internships show up in this list when PetroSkill is taking applications. Until then, join the waitlist and we will write when the next one is up."
+                  : "Tap an open card to pay with Paystack or Accrue. The join link appears after the payment is confirmed."
+              }
             />
           </Reveal>
-          <div className="mt-12 grid gap-4 md:grid-cols-2">
-            {internship.objectives.map((o, i) => (
-              <Reveal key={o} delay={0.08 * i}>
-                <div className="border-l-2 border-orange bg-sand px-5 py-4 text-sm text-ink">
-                  <span className="mr-2 font-[family-name:var(--font-display)] font-bold text-orange">
-                    0{i + 1}
-                  </span>
-                  {o}
+
+          {openCount === 0 ? (
+            <Reveal className="mt-12">
+              <div className="border border-navy/10 bg-sand px-6 py-14 md:px-12 md:py-20">
+                <p className="font-[family-name:var(--font-display)] text-6xl font-semibold text-navy/15 md:text-7xl">
+                  00
+                </p>
+                <h3 className="mt-4 max-w-xl font-[family-name:var(--font-display)] text-3xl font-semibold leading-tight text-navy md:text-5xl">
+                  No internship is posted right now
+                </h3>
+                <p className="mt-4 max-w-lg text-sm leading-relaxed text-muted md:text-base">
+                  When a cohort opens, its card is added here. Tap it to pay, then use the
+                  join link. Closed intakes move to the archive below.
+                </p>
+                <div className="mt-8">
+                  <Magnetic>
+                    <Button href={site.waitlistForm} variant="orange" external>
+                      Join the waitlist
+                    </Button>
+                  </Magnetic>
                 </div>
+              </div>
+            </Reveal>
+          ) : (
+            <InternshipBoard postings={openPostings} />
+          )}
+
+          {closedPostings.length > 0 ? (
+            <div className="mt-16">
+              <Reveal>
+                <h3 className="font-[family-name:var(--font-display)] text-2xl font-semibold text-navy">
+                  Previously posted
+                </h3>
+                <p className="mt-2 max-w-xl text-sm text-muted">
+                  These intakes have closed. They stay here as a record, not as something
+                  you can join.
+                </p>
               </Reveal>
-            ))}
-          </div>
+              <ul className="mt-6 divide-y divide-navy/10 border-y border-navy/10">
+                {closedPostings.map((posting) => (
+                  <li
+                    key={posting.slug}
+                    className="grid gap-3 py-5 sm:grid-cols-[140px_1fr] sm:items-center sm:gap-6"
+                  >
+                    <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted">
+                      Closed
+                    </span>
+                    <span>
+                      <span className="block font-[family-name:var(--font-display)] text-lg font-semibold text-navy">
+                        {posting.title}
+                      </span>
+                      <span className="mt-1 block text-sm text-muted">
+                        Posted {posting.posted} · Started {posting.starts}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </div>
       </section>
 
       <section className="bg-sand">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-2 md:px-8 md:py-28">
-          <div>
-            <Reveal>
-              <SectionHeading eyebrow="Curriculum" title="Six-week learning journey" />
-            </Reveal>
-            <ol className="mt-10 space-y-3">
-              {internship.curriculum.map((item, i) => (
-                <Reveal key={item.week} delay={0.06 * i}>
-                  <li className="flex gap-4 border border-navy/8 bg-white p-4">
-                    <span className="font-[family-name:var(--font-display)] text-sm font-bold text-orange">
-                      {item.week}
-                    </span>
-                    <span className="text-sm text-ink">{item.topic}</span>
-                  </li>
-                </Reveal>
-              ))}
-            </ol>
-            <Reveal delay={0.2}>
-              <p className="mt-6 text-sm text-muted">{internship.schedule}</p>
-            </Reveal>
-          </div>
-          <div>
-            <Reveal>
-              <SectionHeading
-                eyebrow="Industry Speakers"
-                title="Learn from practitioners"
-              />
-            </Reveal>
-            <ul className="mt-10 space-y-3">
-              {internship.speakers.map((s, i) => (
-                <Reveal key={s} delay={0.06 * i}>
-                  <li className="border border-navy/8 bg-white px-5 py-4 text-sm font-medium text-navy">
-                    {s}
-                  </li>
-                </Reveal>
-              ))}
-            </ul>
-            <Reveal delay={0.2} className="relative mt-8 aspect-[16/10] overflow-hidden">
-              <Image
-                src="/images/team-08.jpg"
-                alt="Industry speaker"
-                fill
-                className="object-cover"
-                sizes="(max-width:1024px) 100vw, 50vw"
-              />
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      <section className="grain relative overflow-hidden bg-navy text-white">
-        <Aurora />
-        <div className="relative mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
-          <Reveal>
-            <SectionHeading
-              light
-              eyebrow="Benefits"
-              title="Why participants choose this internship"
-            />
-          </Reveal>
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {internship.benefits.map((b, i) => (
-              <FloatCard key={b} delay={0.08 * i}>
-                <div className="h-full border border-white/10 bg-white/5 p-5 text-sm backdrop-blur-sm">
-                  {b}
-                </div>
-              </FloatCard>
-            ))}
-          </div>
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            <Reveal>
-              <div className="border border-white/10 bg-white/5 p-6">
-                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-orange-soft">
-                  Pricing
-                </p>
-                <p className="mt-3 font-[family-name:var(--font-display)] text-3xl font-semibold">
-                  {internship.pricing}
-                </p>
-              </div>
-            </Reveal>
-            <Reveal delay={0.1} className="md:col-span-2">
-              <div className="border border-white/10 bg-white/5 p-6">
-                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-orange-soft">
-                  Previous cohorts
-                </p>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  {internship.cohorts.map((c) => (
-                    <span
-                      key={c}
-                      className="border border-white/15 px-3 py-1.5 text-sm"
-                    >
-                      {c}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white">
         <div className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
           <Reveal>
-            <SectionHeading eyebrow="Testimonials" title="Voices from past interns" />
+            <SectionHeading
+              eyebrow="How this page works"
+              title="Posted when needed, taken down when it closes"
+            />
           </Reveal>
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
-            {testimonials.slice(0, 2).map((t, i) => (
-              <FloatCard key={t.name} delay={0.1 * i}>
-                <blockquote className="h-full bg-sand p-6 md:p-8">
-                  <p className="font-[family-name:var(--font-display)] text-lg leading-relaxed text-navy">
-                    “{t.quote}”
+          <ol className="mt-12 grid gap-4 md:grid-cols-3">
+            {[
+              {
+                title: "We post it here",
+                detail:
+                  "An internship appears on this board only when applications for that cohort are open.",
+              },
+              {
+                title: "You pay from the card",
+                detail:
+                  "Tap the open card and pay with Paystack or Accrue. After payment is confirmed, a join link appears.",
+              },
+              {
+                title: "It leaves when the intake ends",
+                detail:
+                  "Closed postings move to the archive. The board returns to empty until the next one is posted.",
+              },
+            ].map((step, i) => (
+              <Reveal key={step.title} delay={0.08 * i}>
+                <li className="h-full border border-navy/10 bg-white p-6">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-orange">
+                    {String(i + 1).padStart(2, "0")}
                   </p>
-                  <p className="mt-6 text-sm font-semibold text-navy">
-                    {t.name} · {t.role}
-                  </p>
-                </blockquote>
-              </FloatCard>
+                  <h3 className="mt-3 font-[family-name:var(--font-display)] text-xl font-semibold text-navy">
+                    {step.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted">{step.detail}</p>
+                </li>
+              </Reveal>
             ))}
-          </div>
-
-          <div className="mt-16">
-            <Reveal>
-              <SectionHeading eyebrow="FAQs" title="Common questions" />
-            </Reveal>
-            <div className="mt-8 space-y-3">
-              {internship.faqs.map((f, i) => (
-                <Reveal key={f.q} delay={0.06 * i}>
-                  <details className="group border border-navy/10 p-5 open:bg-sand">
-                    <summary className="cursor-pointer font-[family-name:var(--font-display)] font-semibold text-navy">
-                      {f.q}
-                    </summary>
-                    <p className="mt-3 text-sm text-muted">{f.a}</p>
-                  </details>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-
-          <Reveal className="mt-12 flex flex-wrap gap-3">
-            <Magnetic>
-              <Button href={site.registrationForm} variant="orange" external>
-                Register Now
-              </Button>
-            </Magnetic>
-            <Magnetic>
-              <Button href={site.waitlistForm} variant="ghost" external>
-                Join Waitlist
-              </Button>
-            </Magnetic>
-          </Reveal>
+          </ol>
         </div>
       </section>
     </>
   );
 }
+
+function StatusFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-orange">{label}</p>
+      <p className="mt-2 font-[family-name:var(--font-display)] text-2xl font-semibold text-navy">
+        {value}
+      </p>
+    </div>
+  );
+}
+

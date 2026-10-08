@@ -10,7 +10,6 @@ export const site = {
   registrationForm:
     "https://forms.office.com/r/placeholder-pvl-registration",
   waitlistForm: "https://forms.office.com/r/placeholder-pvl-waitlist",
-  newsletterForm: "https://forms.office.com/r/placeholder-pvl-newsletter",
   social: {
     linkedin: "https://www.linkedin.com/",
     facebook: "https://www.facebook.com/",
@@ -59,7 +58,6 @@ export const navLinks = [
   { href: "/about", label: "About" },
   { href: "/courses", label: "Courses" },
   { href: "/internship", label: "Internship" },
-  { href: "/partners", label: "Partners" },
   { href: "/news", label: "News" },
   { href: "/events", label: "Events" },
   { href: "/contact", label: "Contact" },
@@ -147,6 +145,8 @@ export type Course = {
   time: string;
   instructor: string;
   fee: string;
+  /** Shown after a confirmed Paystack or Accrue payment. */
+  joinUrl?: string;
   audience: string;
   image: string;
   featured?: boolean;
@@ -323,6 +323,111 @@ export const courses: Course[] = [
       },
     ],
   },
+  {
+    slug: "petroleum-geoscience-field-development",
+    title: "Petroleum Geoscience for Field Development",
+    category: "geoscience",
+    description:
+      "Connect geology, petrophysics, and subsurface interpretation to the decisions that shape field development plans.",
+    duration: "4 weeks",
+    delivery: "Live Online",
+    startDate: "8 December 2026",
+    time: "18:00 – 20:00 GMT",
+    instructor: "Dr. Abena Owusu",
+    fee: "$239",
+    audience: "Geoscientists, petrophysicists, and subsurface team members",
+    image: "/images/gallery-03.jpg",
+    outcomes: [
+      "Interpret key subsurface datasets for development context",
+      "Link geological uncertainty to well and facility decisions",
+      "Present geoscience insights to multidisciplinary teams",
+    ],
+    prerequisites: ["Introductory geology or petroleum engineering background"],
+    faqs: [
+      {
+        q: "Is software training included?",
+        a: "Sessions focus on interpretation workflows. Instructors demonstrate tools, and practice datasets are shared after class.",
+      },
+    ],
+  },
+  {
+    slug: "energy-data-analytics",
+    title: "Energy Data Analytics Essentials",
+    category: "data-analytics",
+    description:
+      "Learn how operating teams turn production, drilling, and subsurface data into decisions—without getting lost in dashboards.",
+    duration: "4 weeks",
+    delivery: "Live Online",
+    startDate: "14 January 2027",
+    time: "19:00 – 21:00 GMT",
+    instructor: "Ms. Efua Addo",
+    fee: "$189",
+    audience: "Engineers, analysts, and operations staff building data skills",
+    image: "/images/gallery-08.jpg",
+    outcomes: [
+      "Frame an analytics question an energy team can act on",
+      "Clean and explore operational datasets with confidence",
+      "Communicate findings to engineers and managers",
+    ],
+    faqs: [
+      {
+        q: "Do I need Python first?",
+        a: "No. Spreadsheet workflows come first. Python is introduced only where it saves time.",
+      },
+    ],
+  },
+  {
+    slug: "energy-career-accelerator",
+    title: "Energy Career Accelerator",
+    category: "career-development",
+    description:
+      "A live coaching program for interviews, professional storytelling, and the move from technical contributor to a role you can defend in the room.",
+    duration: "3 weeks",
+    delivery: "Live Online",
+    startDate: "21 January 2027",
+    time: "17:00 – 19:00 GMT",
+    instructor: "Mr. Daniel Asante",
+    fee: "$149",
+    audience: "Graduates, early-career professionals, and career switchers in energy",
+    image: "/images/team-09.jpg",
+    outcomes: [
+      "Tell a clear story about your technical experience",
+      "Prepare for technical and behavioral interviews",
+      "Build a short plan for the next role or internship",
+    ],
+    faqs: [
+      {
+        q: "Is this only for petroleum engineers?",
+        a: "No. Geoscientists, analysts, and commercial professionals use the same sessions.",
+      },
+    ],
+  },
+  {
+    slug: "professional-certification-pathways",
+    title: "Professional Certification Pathways",
+    category: "professional-certifications",
+    description:
+      "Map industry-aligned certifications to your role, then practice the exam habits and study structure that make a sitting realistic.",
+    duration: "4 weeks",
+    delivery: "Live Online",
+    startDate: "4 February 2027",
+    time: "18:30 – 20:30 GMT",
+    instructor: "Eng. Kwesi Boateng",
+    fee: "$209",
+    audience: "Professionals preparing for energy and engineering certifications",
+    image: "/images/team-10.jpg",
+    outcomes: [
+      "Choose a certification that matches your current role",
+      "Build a study plan around live review sessions",
+      "Practice the question styles common to professional exams",
+    ],
+    faqs: [
+      {
+        q: "Does PVL issue the professional certificate?",
+        a: "PVL prepares you for the pathway. The credential itself is awarded by the external certifying body.",
+      },
+    ],
+  },
 ];
 
 export const values = [
@@ -373,76 +478,50 @@ export const whyChoose = [
 
 export const leadership = [
   {
-    name: "Kwame Owusu",
-    role: "Founder & Executive Director",
-    bio: "Energy educator focused on expanding access to practical upstream and digital skills training across Africa and beyond.",
-    image:
-      "/images/team-08.jpg",
+    name: "Daniel Darkwah Asante",
+    role: "Founder & Head of Learning",
+    image: "/images/gallery-09.jpg",
   },
   {
-    name: "Dr. Ama Mensah",
-    role: "Head of Technical Programs",
-    bio: "Reservoir engineer and instructor with experience designing curricula for early-career and mid-level professionals.",
-    image:
-      "/images/team-04.jpg",
+    name: "Alex Osei Yeboah",
+    role: "Student Support & Finance Lead",
+    image: "/images/team-06.jpg",
   },
   {
-    name: "Nadia Okoro",
-    role: "Director, Digital Energy Learning",
-    bio: "Leads PVL’s AI, analytics, and Python pathways connecting traditional energy skills with modern tools.",
-    image:
-      "/images/team-07.jpg",
-  },
-  {
-    name: "Daniel Asante",
-    role: "Commercial & Partnerships Lead",
-    bio: "Builds relationships with sponsors, universities, and employers supporting scholarships and cohort delivery.",
-    image:
-      "/images/team-06.jpg",
+    name: "Kofi Owongo Koomson",
+    role: "Student and Industry Liaison",
+    image: "/images/gallery-07.jpg",
   },
 ];
 
 export const partners = [
   {
-    name: "West Africa Energy University",
-    type: "University",
-    description: "Academic collaboration on curriculum review and guest lectures.",
-    logo: "WAEU",
-  },
-  {
-    name: "Atlantic Upstream Partners",
-    type: "Energy Company",
-    description: "Industry speakers and case studies drawn from operating assets.",
-    logo: "AUP",
-  },
-  {
-    name: "SPE Student Chapters Network",
-    type: "Professional Association",
-    description: "Outreach and awareness support for emerging professionals.",
-    logo: "SPE",
-  },
-  {
-    name: "Orbit Data Systems",
-    type: "Technology Provider",
-    description: "Tool demos and analytics workshops for digital energy cohorts.",
-    logo: "ODS",
-  },
-  {
-    name: "Horizon Skills Foundation",
-    type: "Sponsor",
-    description: "Scholarship support for high-potential applicants.",
-    logo: "HSF",
-  },
-  {
-    name: "Global DrillTech Academy",
-    type: "Training Partner",
-    description: "Joint delivery of specialized drilling short courses.",
-    logo: "GDA",
+    name: "Rock Flow Dynamics",
+    logo: "/images/partners/rfd.png",
   },
 ];
 
-export const testimonials = [
+export const testimonialKinds = [
+  { id: "student", label: "Student Testimonials" },
+  { id: "alumni", label: "Alumni Success Stories" },
+  { id: "employer", label: "Employer Feedback" },
+  { id: "video", label: "Video Testimonials" },
+  { id: "linkedin", label: "LinkedIn Recommendations" },
+] as const;
+
+export type TestimonialKind = (typeof testimonialKinds)[number]["id"];
+
+export const testimonials: {
+  quote: string;
+  name: string;
+  role: string;
+  company: string;
+  kind: TestimonialKind;
+  videoUrl?: string;
+  linkedinUrl?: string;
+}[] = [
   {
+    kind: "student",
     quote:
       "PVL’s live sessions felt like a real classroom with industry mentors. I applied production optimization ideas at work within weeks.",
     name: "Fatima Diallo",
@@ -450,6 +529,15 @@ export const testimonials = [
     company: "West African Independent",
   },
   {
+    kind: "student",
+    quote:
+      "Clear instructors, relevant case studies, and a global peer group. Exactly what I needed to pivot into petroleum economics.",
+    name: "James Okafor",
+    role: "Commercial Analyst",
+    company: "Lagos",
+  },
+  {
+    kind: "alumni",
     quote:
       "The virtual internship gave me structured exposure to subsurface workflows and confidence speaking with hiring managers.",
     name: "Chinedu Eze",
@@ -457,6 +545,15 @@ export const testimonials = [
     company: "PVL Cohort 7",
   },
   {
+    kind: "alumni",
+    quote:
+      "After Cohort 8 I moved from a general graduate role into a subsurface support seat. The capstone was what I walked through in the interview.",
+    name: "Aisha Bello",
+    role: "Subsurface Graduate",
+    company: "PVL Cohort 8",
+  },
+  {
+    kind: "employer",
     quote:
       "We sponsored seats for our junior staff. The content was practical, affordable, and far better than generic online video courses.",
     name: "Sarah Mensah",
@@ -464,11 +561,22 @@ export const testimonials = [
     company: "Coastal Energy Ltd",
   },
   {
+    kind: "video",
     quote:
-      "Clear instructors, relevant case studies, and a global peer group. Exactly what I needed to pivot into petroleum economics.",
-    name: "James Okafor",
-    role: "Commercial Analyst",
-    company: "Lagos",
+      "I joined from Accra after work. The instructor stopped for questions, and the WhatsApp group kept the cohort talking between Teams sessions.",
+    name: "Kwabena Appiah",
+    role: "Drilling Engineer",
+    company: "Video testimonial",
+    videoUrl: "https://www.youtube.com/",
+  },
+  {
+    kind: "linkedin",
+    quote:
+      "I recommend PetroSkill Virtual Learning to early-career engineers who want live teaching instead of another library of recordings.",
+    name: "Lena Okeke",
+    role: "Reservoir Engineer",
+    company: "LinkedIn recommendation",
+    linkedinUrl: "https://www.linkedin.com/",
   },
 ];
 
@@ -509,7 +617,95 @@ export const news = [
     content:
       "Through this partnership, eligible applicants can receive partial fee support for designated PVL programs. Details and eligibility criteria will be shared with shortlisted candidates during the registration review process.",
   },
+  {
+    slug: "skills-demand-upstream-teams",
+    title: "What Upstream Teams Are Hiring For This Year",
+    category: "Industry News",
+    date: "18 June 2026",
+    excerpt:
+      "Reservoir, production, and data skills still sit together on the same job descriptions. Here is how PVL is lining live programs up with that mix.",
+    image: "/images/hero-ppe-orange.png",
+    content:
+      "Operating companies continue to ask for people who can talk subsurface, production, and basic analytics in the same meeting. PVL’s live catalog follows that pattern: short technical cohorts, a digital pathway, and a virtual internship that makes participants practice the handoff between disciplines.",
+  },
+  {
+    slug: "cohort-8-alumni-placements",
+    title: "Cohort 8 Alumni: From Capstone to First Energy Role",
+    category: "Student Success Stories",
+    date: "2 June 2026",
+    excerpt:
+      "Graduates from the latest internship cohort are using their projects in interviews for subsurface, operations, and commercial support roles.",
+    image: "/images/gallery-07.jpg",
+    content:
+      "Virtual Internship Cohort 8 closed with participant presentations attended by guest practitioners. Several alumni have since moved into graduate and junior seats, and they credit the weekly structure—live teaching, a guided project, and a career clinic—for giving them something concrete to discuss with hiring managers.",
+  },
+  {
+    slug: "industry-speakers-night-recap",
+    title: "Recap: PVL Industry Speakers Night",
+    category: "Event Recaps",
+    date: "24 June 2026",
+    excerpt:
+      "Lightning talks from reservoir, drilling, and digital energy practitioners, plus the questions the audience would not let go.",
+    image: "/images/gallery-04.jpg",
+    content:
+      "Industry Speakers Night brought practicing engineers and digital specialists together for short talks on well planning, production surveillance, and where analytics actually helps an asset team. The recording notes and speaker themes are now reflected in upcoming workshops listed on the events page.",
+  },
+  {
+    slug: "speaker-spotlight-ama-mensah",
+    title: "Speaker Spotlight: Dr. Ama Mensah",
+    category: "Speaker Spotlights",
+    date: "15 May 2026",
+    excerpt:
+      "Our Head of Technical Programs on teaching reservoir simulation to people who have to use it on Monday morning.",
+    image: "/images/team-04.jpg",
+    content:
+      "Dr. Ama Mensah leads PVL’s technical programs and teaches Reservoir Simulation Fundamentals. Her sessions stay close to model setup, history matching, and how to explain a forecast to a team that does not live in the simulator. She also reviews curriculum with university and industry partners before a cohort opens.",
+  },
 ];
+
+export const registrationSteps = [
+  {
+    title: "Course page",
+    detail: "Review the program: duration, schedule, instructor, fee, and who it is for.",
+  },
+  {
+    title: "Register Now",
+    detail: "Use the button on the course or internship page.",
+  },
+  {
+    title: "Microsoft Forms",
+    detail: "Complete the registration form. There is no student portal or online classroom.",
+  },
+  {
+    title: "Registration submitted",
+    detail: "Your form is received by the PVL team.",
+  },
+  {
+    title: "Confirmation email",
+    detail: "We email you to confirm the submission.",
+  },
+  {
+    title: "Admin review",
+    detail: "The team reviews the registration before a seat is confirmed.",
+  },
+  {
+    title: "Payment instructions",
+    detail: "We send payment details after review.",
+  },
+  {
+    title: "WhatsApp group",
+    detail: "You receive an invitation to the cohort WhatsApp group.",
+  },
+  {
+    title: "Microsoft Teams",
+    detail: "You receive the live session meeting invitation.",
+  },
+];
+
+export const whyExists = {
+  title: "A training institute, not an online course library",
+  body: "PetroSkill Virtual Learning is an international professional training organization. We exist to provide affordable, industry-relevant education in oil, gas, energy, and emerging technology — delivered through live instructor-led virtual sessions, not pre-recorded courses. The website is a front door to those programs. It is not a learning management system: there are no online lessons, quizzes, progress tracks, assignments, or certificates issued from the site.",
+};
 
 export const events = [
   {
@@ -594,51 +790,116 @@ export const gallery = [
   },
 ];
 
-export const internship = {
-  overview:
-    "The PetroSkill Virtual Internship is our flagship program for graduates and early-career professionals seeking structured, industry-informed exposure to oil, gas, and energy workflows—delivered live online with mentors and guest speakers.",
-  objectives: [
-    "Build foundational technical and professional skills for energy careers",
-    "Complete guided projects that mirror real team deliverables",
-    "Learn directly from practicing industry speakers",
-    "Strengthen communication, teamwork, and presentation skills",
-  ],
-  curriculum: [
-    { week: "Week 1", topic: "Industry landscape & professional foundations" },
-    { week: "Week 2", topic: "Subsurface & reservoir concepts in practice" },
-    { week: "Week 3", topic: "Production systems and operations awareness" },
-    { week: "Week 4", topic: "Data, economics, and decision frameworks" },
-    { week: "Week 5", topic: "Capstone project development" },
-    { week: "Week 6", topic: "Presentations, feedback, and career clinic" },
-  ],
-  schedule:
-    "Live sessions typically run 2–3 evenings per week (GMT), with guided assignments between classes.",
-  speakers: [
-    "Reservoir engineering practitioners",
-    "Production and operations leads",
-    "Petroleum economists",
-    "Digital energy specialists",
-  ],
-  benefits: [
-    "Live mentorship and peer collaboration",
-    "Certificate of completion for qualifying participants",
-    "Portfolio-ready project experience",
-    "Access to alumni community channels",
-  ],
-  cohorts: ["Cohort 6 — 42 participants", "Cohort 7 — 55 participants", "Cohort 8 — 61 participants"],
-  pricing: "$149 per participant",
-  faqs: [
-    {
-      q: "Who should apply?",
-      a: "Recent graduates and early-career professionals interested in oil, gas, energy, and related technical or commercial roles.",
-    },
-    {
-      q: "How do I register?",
-      a: "Click Register Now to open our Microsoft Forms application. Our team reviews submissions and sends payment instructions.",
-    },
-    {
-      q: "What if the cohort is full?",
-      a: "Join the waitlist via Microsoft Forms and we will notify you when the next cohort opens.",
-    },
-  ],
+export type InternshipStatus = "open" | "closed";
+
+export type InternshipPosting = {
+  slug: string;
+  title: string;
+  status: InternshipStatus;
+  posted: string;
+  closes: string;
+  starts: string;
+  duration: string;
+  format: string;
+  fee: string;
+  summary: string;
+  image: string;
+  /** Shown after a confirmed Paystack or Accrue payment. */
+  joinUrl?: string;
+  applyUrl?: string;
+  overview?: string;
+  objectives?: string[];
+  curriculum?: { week: string; topic: string }[];
+  schedule?: string;
+  speakers?: string[];
+  benefits?: string[];
+  faqs?: { q: string; a: string }[];
 };
+
+/**
+ * Internships are posted here only while an intake is relevant.
+ * Set status to "closed" when applications end. If none are "open",
+ * the internship page shows an empty board.
+ */
+export const internshipPostings: InternshipPosting[] = [
+  {
+    slug: "virtual-internship-cohort-9",
+    title: "Virtual Internship — Cohort 9",
+    status: "open",
+    posted: "12 August 2026",
+    closes: "26 October 2026",
+    starts: "9 November 2026",
+    duration: "6 weeks",
+    format: "Live online",
+    fee: "$149",
+    joinUrl: "https://wa.me/233547964362?text=I%20paid%20for%20Virtual%20Internship%20Cohort%209",
+    summary:
+      "A six-week live internship for graduates and early-career professionals. Weekly sessions, a guided project, and guest speakers from operating companies.",
+    image: "/images/group-02.jpg",
+    overview:
+      "Cohort 9 is a posted intake, not a standing program. Participants join live online sessions, complete guided projects that mirror team deliverables, and hear from practicing speakers across subsurface, operations, and commercial work.",
+    objectives: [
+      "Build foundational technical and professional skills for energy careers",
+      "Complete guided projects that mirror real team deliverables",
+      "Learn directly from practicing industry speakers",
+      "Strengthen communication, teamwork, and presentation skills",
+    ],
+    curriculum: [
+      { week: "Week 1", topic: "Industry landscape & professional foundations" },
+      { week: "Week 2", topic: "Subsurface & reservoir concepts in practice" },
+      { week: "Week 3", topic: "Production systems and operations awareness" },
+      { week: "Week 4", topic: "Data, economics, and decision frameworks" },
+      { week: "Week 5", topic: "Capstone project development" },
+      { week: "Week 6", topic: "Presentations, feedback, and career clinic" },
+    ],
+    schedule:
+      "Live sessions run 2–3 evenings per week (GMT), with guided assignments between classes.",
+    speakers: [
+      "Reservoir engineering practitioners",
+      "Production and operations leads",
+      "Petroleum economists",
+      "Digital energy specialists",
+    ],
+    benefits: [
+      "Live mentorship and peer collaboration",
+      "Certificate of completion for qualifying participants",
+      "Portfolio-ready project experience",
+      "Access to alumni community channels",
+    ],
+    faqs: [
+      {
+        q: "Who should apply?",
+        a: "Recent graduates and early-career professionals interested in oil, gas, energy, and related technical or commercial roles.",
+      },
+      {
+        q: "How do I register?",
+        a: "Tap the open internship card, pay with Paystack or Accrue, then use the join link that appears after payment is confirmed.",
+      },
+      {
+        q: "What if this cohort fills up?",
+        a: "Join the waitlist. The next internship is posted on this board when applications open — it is not listed in advance.",
+      },
+    ],
+  },
+  {
+    slug: "virtual-internship-cohort-8",
+    title: "Virtual Internship — Cohort 8",
+    status: "closed",
+    posted: "2 February 2026",
+    closes: "16 February 2026",
+    starts: "2 March 2026",
+    duration: "6 weeks",
+    format: "Live online",
+    fee: "$149",
+    summary:
+      "Applications for this intake have closed. 61 participants completed the six-week virtual internship.",
+    image: "/images/team-08.jpg",
+    overview:
+      "Cohort 8 ran as a posted internship and is no longer accepting applications. Participants completed live sessions and a capstone they could walk through in interviews.",
+    objectives: [
+      "Structured exposure to subsurface and operations workflows",
+      "A capstone presented to the cohort",
+      "Career clinic with feedback on how to talk about the project",
+    ],
+  },
+];

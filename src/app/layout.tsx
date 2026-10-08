@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Figtree, Unbounded } from "next/font/google";
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
+import { SiteFrame } from "@/components/SiteFrame";
 import { site } from "@/data/content";
 import "./globals.css";
 
@@ -34,9 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${body.variable} ${display.variable} h-full`}>
       <body className="flex min-h-full flex-col bg-background text-ink antialiased">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <SiteFrame>{children}</SiteFrame>
       </body>
     </html>
   );

@@ -5,11 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { navLinks, site } from "@/data/content";
+import { ACCOUNT_EVENT, getSession, type AccountSession } from "@/lib/account";
 
 export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [account, setAccount] = useState<AccountSession | null>(null);
   const isHome = pathname === "/";
 
   useEffect(() => {
@@ -18,6 +20,15 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    const sync = () => setAccount(getSession());
+    sync();
+    window.addEventListener(ACCOUNT_EVENT, sync);
+    return () => window.removeEventListener(ACCOUNT_EVENT, sync);
+  }, []);
+
+  const accountLabel = account ? account.name.split(" ")[0] : "Enroll";
 
   const solid = !isHome || scrolled || open;
 
@@ -44,8 +55,9 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
-          {navLinks.filter((l) => l.href !== "/").map((link) => {
-            const active = pathname.startsWith(link.href);
+          {navLinks.map((link) => {
+            const active =
+              link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
             return (
               <Link
                 key={link.href}
@@ -74,10 +86,10 @@ export function Header() {
             {site.phone}
           </a>
           <Link
-            href="/courses"
+            href="/enroll"
             className="bg-orange px-4 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:bg-orange-soft"
           >
-            Enroll
+            {accountLabel}
           </Link>
         </div>
 
@@ -110,6 +122,13 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/enroll"
+              onClick={() => setOpen(false)}
+              className="mt-4 bg-orange px-4 py-3 text-center text-xs font-bold uppercase tracking-[0.14em] text-white"
+            >
+              {accountLabel}
+            </Link>
           </nav>
         </div>
       ) : null}
