@@ -15,21 +15,20 @@ import {
   type ReactNode,
 } from "react";
 import {
-  createAdminAccess,
-  loginAdmin,
+  hasAdminCredential,
   logoutAdmin,
   readAdminSession,
-  hasAdminCredential,
+  rememberAdminSession,
   type AdminSession,
 } from "@/lib/admin-auth";
-import { loadAdminStore, saveAdminStore, type AdminStore } from "@/lib/admin-store";
+import { type AdminStore } from "@/lib/admin-store";
 import { site } from "@/data/content";
 
 type AdminContextValue = {
   store: AdminStore;
   admin: AdminSession;
   notice: string;
-  update: (recipe: (store: AdminStore) => AdminStore) => void;
+  update: (recipe: (store: AdminStore) => AdminStore, options?: { quiet?: boolean }) => void;
   logout: () => void;
 };
 
@@ -46,42 +45,122 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AdminSession | null>(null);
   const [credentialExists, setCredentialExists] = useState(false);
   const [store, setStore] = useState<AdminStore | null>(null);
+  const [loadError, setLoadError] = useState("");
   const [notice, setNotice] = useState("");
   const storeRef = useRef<AdminStore | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveQueue = useRef(Promise.resolve());
 
   useEffect(() => {
-    const loaded = loadAdminStore();
-    storeRef.current = loaded;
-    setStore(loaded);
-    setSession(readAdminSession());
-    setCredentialExists(hasAdminCredential());
-    setReady(true);
+    let cancelled = false;
+    (async () => {
+      const local = readAdminSession();
+      let serverSession: AdminSession | null = null;
+      let configured = false;
+      let reached = false;
+      try {
+        const response = await fetch("/api/admin/session");
+        const data = (await response.json()) as {
+          configured?: boolean;
+          authenticated?: boolean;
+          session?: AdminSession | null;
+        };
+        reached = true;
+        configured = Boolean(data.configured);
+        if (data.authenticated && data.session?.email && data.session.name) {
+          serverSession = { name: data.session.name, email: data.session.email };
+        }
+      } catch {
+        reached = false;
+      }
+      if (cancelled) return;
+      if (reached) {
+        setCredentialExists(configured);
+        setSession(serverSession);
+      } else {
+        setCredentialExists(hasAdminCredential());
+        setSession(local);
+      }
+      setReady(true);
+    })();
     return () => {
+      cancelled = true;
       if (timer.current) clearTimeout(timer.current);
     };
   }, []);
 
-  const update = useCallback((recipe: (current: AdminStore) => AdminStore) => {
+  useEffect(() => {
+    if (!session) return;
+    setLoadError("");
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch("/api/admin/store");
+        const data = (await response.json()) as { ok?: boolean; store?: AdminStore };
+        if (cancelled) return;
+        if (!data.ok || !data.store) {
+          setLoadError("Could not load the website data.");
+          return;
+        }
+        storeRef.current = data.store;
+        setStore(data.store);
+      } catch {
+        if (!cancelled) setLoadError("Could not load the website data.");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
+
+  const update = useCallback((recipe: (current: AdminStore) => AdminStore, options?: { quiet?: boolean }) => {
     const current = storeRef.current;
     if (!current) return;
     const next = recipe(current);
-    try {
-      saveAdminStore(next);
-    } catch {
-      setNotice("Could not save on this device.");
-      return;
-    }
+    if (next === current) return;
+    const removedPaymentIds = current.payments
+      .filter((payment) => !next.payments.some((item) => item.id === payment.id))
+      .map((payment) => payment.id);
+    const changedPaymentIds = next.payments
+      .filter((payment) => {
+        const previous = current.payments.find((item) => item.id === payment.id);
+        return previous && (previous.status !== payment.status || previous.notes !== payment.notes);
+      })
+      .map((payment) => payment.id);
     storeRef.current = next;
     setStore(next);
-    setNotice("Saved on this device.");
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => setNotice(""), 2400);
+    const snapshot = next;
+    saveQueue.current = saveQueue.current.then(async () => {
+      try {
+        const response = await fetch("/api/admin/store", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ store: snapshot, removedPaymentIds, changedPaymentIds }),
+        });
+        const data = (await response.json().catch(() => null)) as { ok?: boolean; store?: AdminStore } | null;
+        if (!response.ok || !data?.ok || !data.store) {
+          setNotice("Could not save.");
+          return;
+        }
+        if (storeRef.current === snapshot) {
+          storeRef.current = data.store;
+          setStore(data.store);
+        }
+        if (options?.quiet) return;
+        setNotice("Saved.");
+        if (timer.current) clearTimeout(timer.current);
+        timer.current = setTimeout(() => setNotice(""), 2400);
+      } catch {
+        setNotice("Could not save.");
+      }
+    });
   }, []);
 
   const logout = useCallback(() => {
     logoutAdmin();
-    setSession(null);
+    void fetch("/api/admin/session", { method: "DELETE" }).finally(() => {
+      setSession(null);
+    });
   }, []);
 
   const onReady = useCallback((next: AdminSession) => {
@@ -94,10 +173,18 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     return { store, admin: session, notice, update, logout };
   }, [store, session, notice, update, logout]);
 
-  if (!ready || !store) {
+  if (!ready || (session && !store && !loadError)) {
     return (
       <div className="flex min-h-screen flex-1 items-center justify-center bg-navy text-white">
         <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/70">Admin portal</p>
+      </div>
+    );
+  }
+
+  if (session && loadError) {
+    return (
+      <div className="flex min-h-screen flex-1 items-center justify-center bg-navy px-6 text-center text-white">
+        <p className="max-w-sm text-sm leading-6 text-white/80">{loadError} Check that MongoDB is running, then refresh.</p>
       </div>
     );
   }
@@ -133,24 +220,40 @@ function AccessScreen({
     const email = String(form.get("email") ?? "");
     const password = String(form.get("password") ?? "");
 
-    if (mode === "setup") {
-      const confirm = String(form.get("confirm") ?? "");
-      if (password !== confirm) {
-        setError("Enter the same password in both fields.");
+    try {
+      const response = await fetch("/api/admin/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode,
+          name: "Admin",
+          email,
+          password,
+        }),
+      });
+      const data = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        error?: string;
+        session?: AdminSession;
+      } | null;
+      if (!response.ok || !data?.ok || !data.session) {
+        setError(data?.error || "Could not sign in.");
         setPending(false);
         return;
       }
-      const result = await createAdminAccess({
-        name: String(form.get("name") ?? ""),
-        email,
+      const remembered = await rememberAdminSession({
+        name: data.session.name,
+        email: data.session.email,
         password,
       });
-      if (result.error || !result.session) setError(result.error || "Could not create admin access.");
-      else onReady(result.session);
-    } else {
-      const result = await loginAdmin({ email, password });
-      if (result.error || !result.session) setError(result.error || "Could not sign in.");
-      else onReady(result.session);
+      if (remembered.error || !remembered.session) {
+        setError(remembered.error || "Could not sign in.");
+        setPending(false);
+        return;
+      }
+      onReady(remembered.session);
+    } catch {
+      setError("The admin service did not respond. Try again.");
     }
     setPending(false);
   }
@@ -163,19 +266,13 @@ function AccessScreen({
         <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-semibold leading-tight text-navy">
           {mode === "setup" ? "Create admin access" : "Admin sign-in"}
         </h1>
-        <p className="mt-3 text-sm leading-relaxed text-muted">
-          {mode === "setup"
-            ? "This sign-in opens the portal for courses, internships, news, events, payments, and registered members. It stays in this browser."
-            : "Use the staff email and password saved in this browser."}
-        </p>
+        {mode === "login" ? (
+          <p className="mt-3 text-sm leading-relaxed text-muted">
+            Use the staff email and password.
+          </p>
+        ) : null}
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
-          {mode === "setup" ? (
-            <label className="block text-sm">
-              <span className="mb-1.5 block font-medium text-navy">Your name</span>
-              <input name="name" required autoComplete="name" className="w-full border border-navy/10 px-3 py-2.5 text-sm outline-none focus:border-orange" />
-            </label>
-          ) : null}
           <label className="block text-sm">
             <span className="mb-1.5 block font-medium text-navy">Email</span>
             <input
@@ -198,19 +295,6 @@ function AccessScreen({
               className="w-full border border-navy/10 px-3 py-2.5 text-sm outline-none focus:border-orange"
             />
           </label>
-          {mode === "setup" ? (
-            <label className="block text-sm">
-              <span className="mb-1.5 block font-medium text-navy">Confirm password</span>
-              <input
-                name="confirm"
-                type="password"
-                required
-                minLength={8}
-                autoComplete="new-password"
-                className="w-full border border-navy/10 px-3 py-2.5 text-sm outline-none focus:border-orange"
-              />
-            </label>
-          ) : null}
 
           {error ? (
             <p role="alert" className="border border-orange/30 bg-orange/10 px-3 py-2 text-sm text-navy">
@@ -223,7 +307,7 @@ function AccessScreen({
             disabled={pending}
             className="w-full bg-orange px-4 py-3 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:bg-orange-soft disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {pending ? "Please wait…" : mode === "setup" ? "Create access" : "Sign in"}
+            {pending ? "Please wait…" : "Sign in"}
           </button>
         </form>
       </div>
@@ -260,6 +344,7 @@ function AdminShell({
     { href: "/admin/events", label: "Events", icon: "calendar", count: store.events.length },
     { href: "/admin/payments", label: "Payments", icon: "card", count: store.payments.length },
     { href: "/admin/members", label: "Members", icon: "users", count: store.members.length },
+    { href: "/admin/mail", label: "Email", icon: "mail", count: null },
   ] as const;
 
   const current = links.find((link) => isCurrent(pathname, link.href));
@@ -394,7 +479,7 @@ function isCurrent(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function Icon({ name }: { name: "grid" | "book" | "briefcase" | "news" | "calendar" | "card" | "users" }) {
+function Icon({ name }: { name: "grid" | "book" | "briefcase" | "news" | "calendar" | "card" | "users" | "mail" }) {
   const props = {
     viewBox: "0 0 24 24",
     className: "h-4 w-4",
@@ -453,6 +538,14 @@ function Icon({ name }: { name: "grid" | "book" | "briefcase" | "news" | "calend
       <svg {...props}>
         <rect x="2" y="5" width="20" height="14" rx="2" />
         <path d="M2 10h20" />
+      </svg>
+    );
+  }
+  if (name === "mail") {
+    return (
+      <svg {...props}>
+        <rect x="3" y="5" width="18" height="14" />
+        <path d="m3 7 9 6 9-6" />
       </svg>
     );
   }

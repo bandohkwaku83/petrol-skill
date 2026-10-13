@@ -21,6 +21,9 @@ export default function AdminHomePage() {
   const openInternships = store.internships.filter((posting) => posting.status === "open").length;
   const featured = store.courses.filter((course) => course.featured).length;
   const upcoming = store.events.filter((event) => event.status === "upcoming").length;
+  const reachable = new Set(
+    store.members.map((member) => member.email.trim().toLowerCase()).filter(Boolean),
+  ).size;
 
   const cards = [
     { href: "/admin/courses", label: "Courses", value: String(store.courses.length), detail: `${featured} featured` },
@@ -39,6 +42,7 @@ export default function AdminHomePage() {
       detail: `${pending} pending`,
     },
     { href: "/admin/members", label: "Members", value: String(store.members.length), detail: `${waiting} waiting` },
+    { href: "/admin/mail", label: "Email", value: String(reachable), detail: "People you can write to" },
   ];
 
   return (
@@ -47,8 +51,8 @@ export default function AdminHomePage() {
         Admin portal
       </h1>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-        Manage courses, internships, news, events, payments, and registered members. Sample payments and
-        registrations are included. Updates stay on this device.
+        Manage the courses, internships, news, and events shown on the website. Payments appear when
+        someone starts or completes checkout. Accounts and the waitlist are separate from this admin login.
       </p>
 
       <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">

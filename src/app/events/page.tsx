@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Button } from "@/components/Button";
 import { PageHero } from "@/components/PageHero";
 import { SectionHeading } from "@/components/SectionHeading";
@@ -7,8 +8,22 @@ import { FloatCard, Magnetic, Reveal } from "@/components/motion";
 import { events, site } from "@/data/content";
 
 export default function EventsPage() {
-  const upcoming = events.filter((e) => e.status === "upcoming");
-  const previous = events.filter((e) => e.status === "previous");
+  const [eventList, setEventList] = useState(events);
+  const upcoming = eventList.filter((e) => e.status === "upcoming");
+  const previous = eventList.filter((e) => e.status === "previous");
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/catalog")
+      .then((response) => response.json())
+      .then((data: { ok?: boolean; catalog?: { events?: typeof events } }) => {
+        if (!cancelled && data.ok && Array.isArray(data.catalog?.events)) setEventList(data.catalog.events);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <>

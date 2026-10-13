@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useId, useMemo, useState, type FormEvent } from "react";
 import { useAdmin } from "@/components/admin/AdminProvider";
 import {
   Actions,
@@ -13,6 +13,7 @@ import {
   PageIntro,
   RecordList,
   SearchBox,
+  SelectionBar,
   SelectField,
   TextArea,
   TextField,
@@ -22,12 +23,14 @@ import {
   primaryBtn,
   rowClass,
   useRecordEditor,
+  useRowSelection,
 } from "@/components/admin/ui";
 import {
   blankMember,
   createId,
   memberKindLabel,
   memberStatusLabel,
+  mergeWaitlistEntries,
   removeWhere,
   upsert,
   validEmail,
@@ -39,9 +42,37 @@ import {
 export default function AdminMembersPage() {
   const { store, update } = useAdmin();
   const editor = useRecordEditor<MemberRecord>();
+  const selection = useRowSelection();
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
+  const [removeError, setRemoveError] = useState("");
   const programListId = useId();
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const response = await fetch("/api/waitlist");
+        const data = (await response.json()) as {
+          ok?: boolean;
+          entries?: Parameters<typeof mergeWaitlistEntries>[1];
+        };
+        if (cancelled) return;
+        if (!response.ok || !data.ok || !Array.isArray(data.entries)) {
+          setRemoveError("Waitlist signups could not be loaded.");
+          return;
+        }
+        setRemoveError("");
+        update((current) => mergeWaitlistEntries(current, data.entries ?? []), { quiet: true });
+      } catch {
+        if (!cancelled) setRemoveError("Waitlist signups could not be loaded.");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [update]);
 
   const filtered = useMemo(
     () =>
@@ -98,7 +129,28 @@ export default function AdminMembersPage() {
     editor.close();
   }
 
-  function remove(member: MemberRecord) {
+  async function remove(member: MemberRecord) {
+    if (member.id.startsWith("waitlist-")) {
+      try {
+        const response = await fetch("/api/waitlist", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: member.id }),
+        });
+        const data = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+        if (!response.ok || !data?.ok) {
+          setRemoveError(data?.error || "Could not remove this waitlist signup.");
+          editor.setPendingDelete(null);
+          return;
+        }
+      } catch {
+        setRemoveError("Could not remove this waitlist signup.");
+        editor.setPendingDelete(null);
+        return;
+      }
+    }
+
+    setRemoveError("");
     const email = member.email.toLowerCase();
     update((current) => ({
       ...current,
@@ -107,7 +159,43 @@ export default function AdminMembersPage() {
         ? current.suppressedEmails
         : [...current.suppressedEmails, email],
     }));
+    selection.drop(member.id);
     editor.setPendingDelete(null);
+  }
+
+  async function removeSelected() {
+    const chosen = store.members.filter((member) => selection.selectedSet.has(member.id));
+    for (const member of chosen) {
+      if (!member.id.startsWith("waitlist-")) continue;
+      try {
+        const response = await fetch("/api/waitlist", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: member.id }),
+        });
+        const data = (await response.json().catch(() => null)) as { ok?: boolean; error?: string } | null;
+        if (!response.ok || !data?.ok) {
+          setRemoveError(data?.error || "Could not remove a waitlist signup.");
+          return;
+        }
+      } catch {
+        setRemoveError("Could not remove a waitlist signup.");
+        return;
+      }
+    }
+    const ids = new Set(chosen.map((member) => member.id));
+    const emails = new Set(chosen.map((member) => member.email.toLowerCase()));
+    update((current) => ({
+      ...current,
+      members: current.members.filter((member) => !ids.has(member.id)),
+      suppressedEmails: [
+        ...current.suppressedEmails,
+        ...[...emails].filter((email) => !current.suppressedEmails.some((item) => item.toLowerCase() === email)),
+      ],
+    }));
+    selection.clear();
+    setBulkOpen(false);
+    setRemoveError("");
   }
 
   const draft = editor.draft;
@@ -117,13 +205,19 @@ export default function AdminMembersPage() {
     <div>
       <PageIntro
         title="Members"
-        description="People registered for a program, plus accounts created on the enroll page."
+        description="People registered for a program, accounts from the enroll page, and signups from the public waitlist."
         action={
           <button type="button" onClick={() => editor.openCreate(blankMember())} className={primaryBtn}>
             Add member
           </button>
         }
       />
+
+      {removeError ? (
+        <p role="alert" className="mt-4 border border-orange/30 bg-orange/10 px-3 py-2 text-sm text-navy">
+          {removeError}
+        </p>
+      ) : null}
 
       <div className="mt-6 flex flex-col gap-3">
         <div className="md:w-80">
@@ -143,8 +237,17 @@ export default function AdminMembersPage() {
         />
       </div>
 
+      <SelectionBar
+        shownKeys={filtered.map((member) => member.id)}
+        selectedCount={selection.selected.length}
+        onSetVisible={selection.setVisible}
+        onDelete={() => setBulkOpen(true)}
+        onClear={selection.clear}
+      />
+
       <RecordList
         items={filtered}
+        selection={selection}
         columns={["Member", "Program", "Status", "Registered", "Actions"]}
         getKey={(member) => member.id}
         empty={query || status !== "all" ? "Nothing matches that filter." : "Add the first member."}
@@ -280,6 +383,16 @@ export default function AdminMembersPage() {
         onCancel={() => editor.setPendingDelete(null)}
         onConfirm={() => {
           if (editor.pendingDelete) remove(editor.pendingDelete);
+        }}
+      />
+      <ConfirmDialog
+        open={bulkOpen}
+        title={`Delete ${selection.selected.length} members?`}
+        body="The selected people will be removed from this list."
+        confirmLabel="Delete"
+        onCancel={() => setBulkOpen(false)}
+        onConfirm={() => {
+          void removeSelected();
         }}
       />
     </div>

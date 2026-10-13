@@ -66,7 +66,7 @@ export function EnrollClient() {
         <p className="mt-4 text-base leading-relaxed text-muted">
           {session
             ? "You are signed in. Use this account when you come back to PVL."
-            : "Create an account to enroll, or log in if you already have one."}
+            : "Create an account or log in before you pay for a course or internship."}
         </p>
 
         {ready && session ? (

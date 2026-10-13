@@ -11,6 +11,7 @@ import {
   PageIntro,
   RecordList,
   SearchBox,
+  SelectionBar,
   TextArea,
   TextField,
   cellClass,
@@ -19,6 +20,7 @@ import {
   primaryBtn,
   rowClass,
   useRecordEditor,
+  useRowSelection,
 } from "@/components/admin/ui";
 import {
   blankNews,
@@ -32,6 +34,8 @@ import {
 export default function AdminNewsPage() {
   const { store, update } = useAdmin();
   const editor = useRecordEditor<NewsArticle>();
+  const selection = useRowSelection();
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const listId = useId();
@@ -90,7 +94,18 @@ export default function AdminNewsPage() {
       ...current,
       news: removeWhere(current.news, (item) => item.slug, article.slug),
     }));
+    selection.drop(article.slug);
     editor.setPendingDelete(null);
+  }
+
+  function removeSelected() {
+    const keys = selection.selectedSet;
+    update((current) => ({
+      ...current,
+      news: current.news.filter((article) => !keys.has(article.slug)),
+    }));
+    selection.clear();
+    setBulkOpen(false);
   }
 
   const draft = editor.draft;
@@ -128,9 +143,17 @@ export default function AdminNewsPage() {
       <p className="mt-3 text-xs font-medium text-muted">
         {filtered.length} of {store.news.length}
       </p>
+      <SelectionBar
+        shownKeys={filtered.map((article) => article.slug)}
+        selectedCount={selection.selected.length}
+        onSetVisible={selection.setVisible}
+        onDelete={() => setBulkOpen(true)}
+        onClear={selection.clear}
+      />
 
       <RecordList
         items={filtered}
+        selection={selection}
         columns={["Story", "Category", "Date", "Actions"]}
         getKey={(article) => article.slug}
         empty={query || category !== "all" ? "Nothing matches that filter." : "Add the first story."}
@@ -224,6 +247,14 @@ export default function AdminNewsPage() {
         onConfirm={() => {
           if (editor.pendingDelete) remove(editor.pendingDelete);
         }}
+      />
+      <ConfirmDialog
+        open={bulkOpen}
+        title={`Delete ${selection.selected.length} stories?`}
+        body="The selected stories will be removed from the website."
+        confirmLabel="Delete"
+        onCancel={() => setBulkOpen(false)}
+        onConfirm={removeSelected}
       />
     </div>
   );

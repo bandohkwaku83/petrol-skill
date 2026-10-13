@@ -1,53 +1,40 @@
 "use client";
 
-import { useId, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState } from "react";
 import { useAdmin } from "@/components/admin/AdminProvider";
 import {
   Actions,
   ConfirmDialog,
-  Drawer,
-  EditorForm,
-  FieldGrid,
   Filters,
   InlineSelect,
   PageIntro,
   RecordList,
   SearchBox,
-  SelectField,
-  TextArea,
-  TextField,
+  SelectionBar,
   cellClass,
   includesQuery,
   optionList,
-  primaryBtn,
   rowClass,
   useRecordEditor,
+  useRowSelection,
 } from "@/components/admin/ui";
 import {
-  blankPayment,
-  createId,
   feeAmount,
   formatMoney,
-  normalizeFee,
-  paymentKindLabel,
   paymentStatusLabel,
   providerLabel,
   removeWhere,
-  slugify,
-  upsert,
-  validEmail,
-  type PaymentKind,
   type PaymentRecord,
   type PaymentStatus,
 } from "@/lib/admin-store";
-import type { PaymentProvider } from "@/lib/internship-payment";
 
 export default function AdminPaymentsPage() {
   const { store, update } = useAdmin();
   const editor = useRecordEditor<PaymentRecord>();
+  const selection = useRowSelection();
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
-  const programListId = useId();
 
   const filtered = useMemo(
     () =>
@@ -77,71 +64,32 @@ export default function AdminPaymentsPage() {
     }));
   }
 
-  function applyProgram(program: string) {
-    const course = store.courses.find((item) => item.title === program);
-    if (course) {
-      editor.patch({ program, kind: "course", slug: course.slug, amount: course.fee });
-      return;
-    }
-    const posting = store.internships.find((item) => item.title === program);
-    if (posting) {
-      editor.patch({ program, kind: "internship", slug: posting.slug, amount: posting.fee });
-      return;
-    }
-    editor.patch({ program });
-  }
-
-  function save(event: FormEvent) {
-    event.preventDefault();
-    const draft = editor.draft;
-    if (!draft) return;
-    if (draft.name.trim().length < 2) return editor.setError("Enter the payer’s name.");
-    if (!validEmail(draft.email)) return editor.setError("Enter a valid email address.");
-    if (!draft.program.trim()) return editor.setError("Enter the program.");
-    const amount = normalizeFee(draft.amount);
-    if (feeAmount(amount) <= 0) return editor.setError("Enter an amount, such as $249.");
-    if (!draft.date.trim()) return editor.setError("Enter the payment date.");
-
-    const next: PaymentRecord = {
-      ...draft,
-      id: draft.id || createId("pay"),
-      name: draft.name.trim(),
-      email: draft.email.trim().toLowerCase(),
-      program: draft.program.trim(),
-      slug: draft.slug || slugify(draft.program),
-      amount,
-      reference: draft.reference.trim() || `pvl-${draft.kind}-${createId("ref")}`,
-      date: draft.date.trim(),
-      notes: draft.notes.trim(),
-    };
-    update((current) => ({
-      ...current,
-      payments: upsert(current.payments, next, (payment) => payment.id, editor.originalKey.current),
-    }));
-    editor.close();
-  }
-
   function remove(payment: PaymentRecord) {
     update((current) => ({
       ...current,
       payments: removeWhere(current.payments, (item) => item.id, payment.id),
     }));
+    selection.drop(payment.id);
     editor.setPendingDelete(null);
   }
 
-  const draft = editor.draft;
+  function removeSelected() {
+    const keys = selection.selectedSet;
+    update((current) => ({
+      ...current,
+      payments: current.payments.filter((payment) => !keys.has(payment.id)),
+    }));
+    selection.clear();
+    setBulkOpen(false);
+  }
+
   const statusOptions = optionList(paymentStatusLabel);
 
   return (
     <div>
       <PageIntro
         title="Payments"
-        description="Paystack and Accrue payments for courses and internships."
-        action={
-          <button type="button" onClick={() => editor.openCreate(blankPayment())} className={primaryBtn}>
-            Add payment
-          </button>
-        }
+        description="People who started or completed checkout with Paystack or Accrue. This list is not for adding payments by hand."
       />
 
       <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -171,12 +119,20 @@ export default function AdminPaymentsPage() {
       <p className="mt-3 text-xs font-medium text-muted">
         {filtered.length} of {store.payments.length}
       </p>
+      <SelectionBar
+        shownKeys={filtered.map((payment) => payment.id)}
+        selectedCount={selection.selected.length}
+        onSetVisible={selection.setVisible}
+        onDelete={() => setBulkOpen(true)}
+        onClear={selection.clear}
+      />
 
       <RecordList
         items={filtered}
+        selection={selection}
         columns={["Payer", "Program", "Amount", "Provider", "Status", "Actions"]}
         getKey={(payment) => payment.id}
-        empty={query || status !== "all" ? "Nothing matches that filter." : "Add the first payment."}
+        empty={query || status !== "all" ? "Nothing matches that filter." : "No one has started a payment yet."}
         card={(payment) => (
           <div>
             <p className="font-semibold text-navy">{payment.name}</p>
@@ -198,10 +154,7 @@ export default function AdminPaymentsPage() {
               />
             </div>
             <div className="mt-4">
-              <Actions
-                onEdit={() => editor.openEdit(payment, payment.id)}
-                onDelete={() => editor.setPendingDelete(payment)}
-              />
+              <Actions onDelete={() => editor.setPendingDelete(payment)} />
             </div>
           </div>
         )}
@@ -228,87 +181,11 @@ export default function AdminPaymentsPage() {
               />
             </td>
             <td className={cellClass}>
-              <Actions
-                onEdit={() => editor.openEdit(payment, payment.id)}
-                onDelete={() => editor.setPendingDelete(payment)}
-              />
+              <Actions onDelete={() => editor.setPendingDelete(payment)} />
             </td>
           </tr>
         )}
       />
-
-      {draft ? (
-        <Drawer open title={editor.mode === "edit" ? "Edit payment" : "New payment"} onClose={editor.close}>
-          <EditorForm onSubmit={save} onCancel={editor.close} error={editor.error}>
-            <FieldGrid>
-              <TextField label="Name" value={draft.name} onChange={(name) => editor.patch({ name })} />
-              <TextField
-                label="Email"
-                type="email"
-                value={draft.email}
-                onChange={(email) => editor.patch({ email })}
-              />
-            </FieldGrid>
-            <TextField
-              label="Program"
-              value={draft.program}
-              list={programListId}
-              onChange={applyProgram}
-              hint="Pick a course or internship, or type a program name."
-            />
-            <datalist id={programListId}>
-              {store.courses.map((course) => (
-                <option key={course.slug} value={course.title} />
-              ))}
-              {store.internships.map((posting) => (
-                <option key={posting.slug} value={posting.title} />
-              ))}
-            </datalist>
-            <FieldGrid>
-              <SelectField
-                label="Kind"
-                value={draft.kind}
-                onChange={(value) => {
-                  if (value === "course" || value === "internship") editor.patch({ kind: value as PaymentKind });
-                }}
-                options={optionList(paymentKindLabel)}
-              />
-              <TextField
-                label="Amount"
-                value={draft.amount}
-                onChange={(amount) => editor.patch({ amount })}
-                placeholder="$249"
-              />
-              <SelectField
-                label="Provider"
-                value={draft.provider}
-                onChange={(value) => {
-                  if (value === "paystack" || value === "accrue") {
-                    editor.patch({ provider: value as PaymentProvider });
-                  }
-                }}
-                options={optionList(providerLabel)}
-              />
-              <SelectField
-                label="Status"
-                value={draft.status}
-                onChange={(value) => {
-                  if (value in paymentStatusLabel) editor.patch({ status: value as PaymentStatus });
-                }}
-                options={statusOptions}
-              />
-              <TextField label="Date" value={draft.date} onChange={(date) => editor.patch({ date })} />
-              <TextField
-                label="Reference"
-                value={draft.reference}
-                onChange={(reference) => editor.patch({ reference })}
-                hint="Leave this blank to generate one."
-              />
-            </FieldGrid>
-            <TextArea label="Notes" value={draft.notes} onChange={(notes) => editor.patch({ notes })} rows={3} />
-          </EditorForm>
-        </Drawer>
-      ) : null}
 
       <ConfirmDialog
         open={editor.pendingDelete !== null}
@@ -323,6 +200,14 @@ export default function AdminPaymentsPage() {
         onConfirm={() => {
           if (editor.pendingDelete) remove(editor.pendingDelete);
         }}
+      />
+      <ConfirmDialog
+        open={bulkOpen}
+        title={`Delete ${selection.selected.length} payments?`}
+        body="The selected payments will be removed from this list."
+        confirmLabel="Delete"
+        onCancel={() => setBulkOpen(false)}
+        onConfirm={removeSelected}
       />
     </div>
   );

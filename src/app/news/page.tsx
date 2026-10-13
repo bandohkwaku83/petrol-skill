@@ -2,21 +2,35 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PageHero } from "@/components/PageHero";
 import { SectionHeading } from "@/components/SectionHeading";
 import { FloatCard, Reveal } from "@/components/motion";
 import { news } from "@/data/content";
 
 export default function NewsPage() {
+  const [articles, setArticles] = useState(news);
   const categories = useMemo(
-    () => ["All", ...new Set(news.map((item) => item.category))],
-    [],
+    () => ["All", ...new Set(articles.map((item) => item.category))],
+    [articles],
   );
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/catalog")
+      .then((response) => response.json())
+      .then((data: { ok?: boolean; catalog?: { news?: typeof news } }) => {
+        if (!cancelled && data.ok && Array.isArray(data.catalog?.news)) setArticles(data.catalog.news);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
 
-  const filtered = news.filter((item) => {
+  const filtered = articles.filter((item) => {
     const matchesCategory = category === "All" || item.category === category;
     const haystack = `${item.title} ${item.excerpt} ${item.content} ${item.category}`.toLowerCase();
     const matchesQuery = haystack.includes(query.trim().toLowerCase());

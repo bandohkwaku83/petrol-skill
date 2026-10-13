@@ -13,6 +13,7 @@ import {
   PageIntro,
   RecordList,
   SearchBox,
+  SelectionBar,
   SelectField,
   TextArea,
   TextField,
@@ -22,6 +23,7 @@ import {
   primaryBtn,
   rowClass,
   useRecordEditor,
+  useRowSelection,
 } from "@/components/admin/ui";
 import {
   blankEvent,
@@ -36,6 +38,8 @@ import {
 export default function AdminEventsPage() {
   const { store, update } = useAdmin();
   const editor = useRecordEditor<AdminEvent>();
+  const selection = useRowSelection();
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
 
@@ -85,7 +89,18 @@ export default function AdminEventsPage() {
       ...current,
       events: removeWhere(current.events, (item) => item.id, event.id),
     }));
+    selection.drop(event.id);
     editor.setPendingDelete(null);
+  }
+
+  function removeSelected() {
+    const keys = selection.selectedSet;
+    update((current) => ({
+      ...current,
+      events: current.events.filter((event) => !keys.has(event.id)),
+    }));
+    selection.clear();
+    setBulkOpen(false);
   }
 
   const draft = editor.draft;
@@ -125,9 +140,17 @@ export default function AdminEventsPage() {
       <p className="mt-3 text-xs font-medium text-muted">
         {filtered.length} of {store.events.length}
       </p>
+      <SelectionBar
+        shownKeys={filtered.map((event) => event.id)}
+        selectedCount={selection.selected.length}
+        onSetVisible={selection.setVisible}
+        onDelete={() => setBulkOpen(true)}
+        onClear={selection.clear}
+      />
 
       <RecordList
         items={filtered}
+        selection={selection}
         columns={["Event", "When", "Status", "Actions"]}
         getKey={(event) => event.id}
         empty={query || status !== "all" ? "Nothing matches that filter." : "Add the first event."}
@@ -232,6 +255,14 @@ export default function AdminEventsPage() {
         onConfirm={() => {
           if (editor.pendingDelete) remove(editor.pendingDelete);
         }}
+      />
+      <ConfirmDialog
+        open={bulkOpen}
+        title={`Delete ${selection.selected.length} events?`}
+        body="The selected events will be removed from the website."
+        confirmLabel="Delete"
+        onCancel={() => setBulkOpen(false)}
+        onConfirm={removeSelected}
       />
     </div>
   );

@@ -3,11 +3,11 @@ import { Button } from "@/components/Button";
 import { PageHero } from "@/components/PageHero";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Magnetic, Reveal } from "@/components/motion";
-import { internshipPostings, site } from "@/data/content";
+import { internshipPostings } from "@/data/content";
+import { getPublished } from "@/lib/site-db";
 import { InternshipBoard } from "./InternshipBoard";
 
-const openPostings = internshipPostings.filter((posting) => posting.status === "open");
-const closedPostings = internshipPostings.filter((posting) => posting.status === "closed");
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Internship openings",
@@ -15,7 +15,15 @@ export const metadata: Metadata = {
     "Internships are posted on this board only when a cohort is open for applications.",
 };
 
-export default function InternshipPage() {
+export default async function InternshipPage() {
+  let postings = internshipPostings;
+  try {
+    postings = (await getPublished()).internships;
+  } catch {
+    postings = internshipPostings;
+  }
+  const openPostings = postings.filter((posting) => posting.status === "open");
+  const closedPostings = postings.filter((posting) => posting.status === "closed");
   const openCount = openPostings.length;
 
   return (
@@ -32,7 +40,7 @@ export default function InternshipPage() {
               </Button>
             </Magnetic>
             <Magnetic>
-              <Button href={site.waitlistForm} variant="secondary" external>
+              <Button href="/waitlist" variant="secondary">
                 Join waitlist
               </Button>
             </Magnetic>
@@ -83,7 +91,7 @@ export default function InternshipPage() {
                 </p>
                 <div className="mt-8">
                   <Magnetic>
-                    <Button href={site.waitlistForm} variant="orange" external>
+                    <Button href="/waitlist" variant="orange">
                       Join the waitlist
                     </Button>
                   </Magnetic>

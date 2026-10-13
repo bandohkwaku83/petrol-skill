@@ -11,9 +11,10 @@ export const site = {
     "https://forms.office.com/r/placeholder-pvl-registration",
   waitlistForm: "https://forms.office.com/r/placeholder-pvl-waitlist",
   social: {
-    linkedin: "https://www.linkedin.com/",
-    facebook: "https://www.facebook.com/",
-    youtube: "https://www.youtube.com/",
+    linkedin: "https://www.linkedin.com/company/petroskill-virtuallearning/",
+    facebook: "https://www.facebook.com/share/14dtP1cSo1W/?mibextid=wwXIfr",
+    youtube: "https://youtube.com/@petroskillvirtuallearning?si=eegoWBGcSMpkJ6tw",
+    whatsapp: "https://chat.whatsapp.com/KFdPh9vquYDGHqupce1fsr",
     twitter: "https://x.com/",
   },
 };

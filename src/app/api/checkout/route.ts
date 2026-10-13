@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import {
   startCheckout,
@@ -5,6 +6,15 @@ import {
   type PaymentKind,
   type PaymentProvider,
 } from "@/lib/internship-payment";
+import { readPaymentEmail, readUserSession } from "@/lib/site-db";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+async function signedInUser() {
+  const jar = await cookies();
+  return readUserSession(jar.get("pvl_account")?.value);
+}
 
 function providerOf(value: unknown): PaymentProvider | null {
   return value === "paystack" || value === "accrue" ? value : null;
@@ -23,25 +33,28 @@ export async function POST(request: NextRequest) {
     provider?: unknown;
   } | null;
 
+  const account = await signedInUser();
+  if (!account) {
+    return Response.json(
+      { ok: false, error: "Log in or create an account before paying." },
+      { status: 401 },
+    );
+  }
+
   const kind = kindOf(body?.kind);
   const slug = typeof body?.slug === "string" ? body.slug : "";
-  const name = typeof body?.name === "string" ? body.name.trim() : "";
-  const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
   const provider = providerOf(body?.provider);
 
-  if (!kind || !slug || name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !provider) {
-    return Response.json(
-      { ok: false, error: "Enter your name, a valid email, and a payment method." },
-      { status: 400 },
-    );
+  if (!kind || !slug || !provider) {
+    return Response.json({ ok: false, error: "Choose a payment method." }, { status: 400 });
   }
 
   try {
     const result = await startCheckout({
       kind,
       slug,
-      name,
-      email,
+      name: account.name,
+      email: account.email,
       provider,
       origin: request.nextUrl.origin,
     });
@@ -62,6 +75,21 @@ export async function GET(request: NextRequest) {
 
   if (!kind || !provider || !reference || !slug) {
     return Response.json({ ok: false, error: "Missing payment details." }, { status: 400 });
+  }
+
+  const account = await signedInUser();
+  if (!account) {
+    return Response.json(
+      { ok: false, error: "Log in with the account that started this payment." },
+      { status: 401 },
+    );
+  }
+  const owner = await readPaymentEmail(reference);
+  if (!owner || owner !== account.email) {
+    return Response.json(
+      { ok: false, error: "Log in with the account that started this payment." },
+      { status: 403 },
+    );
   }
 
   try {

@@ -1,10 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/Button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CourseArt } from "@/components/CourseArt";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { ProfileIcon } from "@/components/ProfileIcon";
@@ -19,20 +18,33 @@ import {
 import {
   courses,
   partners,
-  site,
   testimonials,
   type Course,
 } from "@/data/content";
 
 export default function HomePage() {
-  const featured = courses.filter((c) => c.featured).slice(0, 4);
+  const [courseList, setCourseList] = useState(courses);
+  const featured = courseList.filter((c) => c.featured).slice(0, 4);
   const [active, setActive] = useState<Course | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/catalog")
+      .then((response) => response.json())
+      .then((data: { ok?: boolean; catalog?: { courses?: Course[] } }) => {
+        if (!cancelled && data.ok && Array.isArray(data.catalog?.courses)) setCourseList(data.catalog.courses);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <>
       {/* Hero */}
-      <section className="grain relative flex min-h-[100svh] items-end overflow-hidden text-white">
-        <div className="absolute inset-0">
+      <section className="grain relative min-h-[100svh] overflow-hidden bg-navy text-white lg:flex lg:items-end">
+        <div className="absolute inset-x-0 top-0 h-[78svh] overflow-hidden lg:inset-0 lg:h-full">
           <motion.div
             className="absolute inset-0"
             initial={{ scale: 1.15 }}
@@ -44,16 +56,17 @@ export default function HomePage() {
               alt="PetroSkill professional in industrial safety gear"
               fill
               priority
-              className="ken-burns object-cover object-[center_30%]"
+              className="ken-burns object-cover object-[78%_center] lg:object-[center_30%]"
               sizes="100vw"
             />
           </motion.div>
-          <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/55 to-navy/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/50 to-transparent" />
+          <div className="absolute inset-0 hidden bg-gradient-to-t from-navy via-navy/55 to-navy/20 lg:block" />
+          <div className="absolute inset-0 hidden bg-gradient-to-r from-navy/90 via-navy/50 to-transparent lg:block" />
           <Aurora />
         </div>
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,transparent_32%,#061a33_54%,#061a33_100%)] lg:hidden" />
 
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 pt-36 md:px-8 md:pb-24">
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-12 pt-[46svh] md:px-8 lg:pb-24 lg:pt-36">
           <div>
             <SplitHeadline
               className="max-w-4xl font-[family-name:var(--font-display)] text-[clamp(2rem,4.6vw,3.75rem)] font-semibold leading-[1.02] tracking-[-0.03em]"
@@ -243,7 +256,7 @@ export default function HomePage() {
                 </Button>
               </Magnetic>
               <Magnetic>
-                <Button href={site.waitlistForm} variant="secondary" external>
+                <Button href="/waitlist" variant="secondary">
                   Join waitlist
                 </Button>
               </Magnetic>
@@ -295,14 +308,6 @@ export default function HomePage() {
                 </div>
               </footer>
             </blockquote>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <Link
-              href="/testimonials"
-              className="mt-12 inline-block text-xs font-bold uppercase tracking-[0.2em] text-blue hover:text-orange"
-            >
-              More stories →
-            </Link>
           </Reveal>
         </div>
       </section>

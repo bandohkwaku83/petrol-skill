@@ -14,6 +14,7 @@ import {
   PageIntro,
   RecordList,
   SearchBox,
+  SelectionBar,
   SelectField,
   TextArea,
   TextField,
@@ -23,6 +24,7 @@ import {
   primaryBtn,
   rowClass,
   useRecordEditor,
+  useRowSelection,
 } from "@/components/admin/ui";
 import { categories, type Course } from "@/data/content";
 import {
@@ -38,6 +40,8 @@ import {
 export default function AdminCoursesPage() {
   const { store, update } = useAdmin();
   const editor = useRecordEditor<Course>();
+  const selection = useRowSelection();
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
 
@@ -106,7 +110,18 @@ export default function AdminCoursesPage() {
       ...current,
       courses: removeWhere(current.courses, (item) => item.slug, course.slug),
     }));
+    selection.drop(course.slug);
     editor.setPendingDelete(null);
+  }
+
+  function removeSelected() {
+    const keys = selection.selectedSet;
+    update((current) => ({
+      ...current,
+      courses: current.courses.filter((course) => !keys.has(course.slug)),
+    }));
+    selection.clear();
+    setBulkOpen(false);
   }
 
   function toggleFeatured(course: Course) {
@@ -153,9 +168,17 @@ export default function AdminCoursesPage() {
       <p className="mt-3 text-xs font-medium text-muted">
         {filtered.length} of {store.courses.length}
       </p>
+      <SelectionBar
+        shownKeys={filtered.map((course) => course.slug)}
+        selectedCount={selection.selected.length}
+        onSetVisible={selection.setVisible}
+        onDelete={() => setBulkOpen(true)}
+        onClear={selection.clear}
+      />
 
       <RecordList
         items={filtered}
+        selection={selection}
         columns={["Course", "Instructor", "Starts", "Fee", "Catalog", "Actions"]}
         getKey={(course) => course.slug}
         empty={query || category !== "all" ? "Nothing matches that filter." : "Add the first course."}
@@ -298,6 +321,14 @@ export default function AdminCoursesPage() {
         onConfirm={() => {
           if (editor.pendingDelete) remove(editor.pendingDelete);
         }}
+      />
+      <ConfirmDialog
+        open={bulkOpen}
+        title={`Delete ${selection.selected.length} courses?`}
+        body="The selected courses will be removed from the website."
+        confirmLabel="Delete"
+        onCancel={() => setBulkOpen(false)}
+        onConfirm={removeSelected}
       />
     </div>
   );

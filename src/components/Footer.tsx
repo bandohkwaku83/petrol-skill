@@ -55,16 +55,6 @@ export function Footer() {
                 Waitlist
               </Link>
             </li>
-            <li>
-              <Link href="/gallery" className="hover:text-white">
-                Gallery
-              </Link>
-            </li>
-            <li>
-              <Link href="/testimonials" className="hover:text-white">
-                Testimonials
-              </Link>
-            </li>
           </ul>
         </div>
 
@@ -85,12 +75,12 @@ export function Footer() {
             </li>
             <li>
               <a
-                href={`https://wa.me/${site.whatsapp.replace("+", "")}`}
+                href={site.social.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white"
               >
-                WhatsApp
+                WhatsApp Community
               </a>
             </li>
             <li>{site.address}</li>
@@ -114,9 +104,6 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-5 text-xs text-white/40 md:px-8">
           <p>© {new Date().getFullYear()} PetroSkill Virtual Learning</p>
-          <Link href="/admin" className="hover:text-white">
-            Admin
-          </Link>
         </div>
       </div>
     </footer>

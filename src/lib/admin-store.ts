@@ -9,6 +9,7 @@ import {
 } from "@/data/content";
 import { listAccounts } from "@/lib/account";
 import type { PaymentProvider } from "@/lib/internship-payment";
+import type { PublicWaitlistEntry } from "@/lib/waitlist";
 
 export type NewsArticle = (typeof news)[number];
 
@@ -41,7 +42,7 @@ export type PaymentRecord = {
 };
 
 export type MemberStatus = "new" | "review" | "confirmed" | "waitlist";
-export type MemberKind = "course" | "internship" | "event" | "account";
+export type MemberKind = "course" | "internship" | "event" | "account" | "waitlist";
 
 export type MemberRecord = {
   id: string;
@@ -84,6 +85,7 @@ export const memberKindLabel: Record<MemberKind, string> = {
   internship: "Internship",
   event: "Event",
   account: "Account",
+  waitlist: "Waitlist",
 };
 
 export const paymentKindLabel: Record<PaymentKind, string> = {
@@ -506,6 +508,38 @@ function readPersisted(): AdminStore | null {
 
 export function saveAdminStore(store: AdminStore) {
   localStorage.setItem(STORE_KEY, JSON.stringify({ version: STORE_VERSION, data: store }));
+}
+
+export function mergeWaitlistEntries(store: AdminStore, entries: PublicWaitlistEntry[]): AdminStore {
+  const known = new Set(store.members.map((member) => member.email.toLowerCase()));
+  const additions: MemberRecord[] = [];
+  const restored = new Set<string>();
+
+  for (const entry of entries) {
+    const email = entry.email.toLowerCase();
+    if (known.has(email)) continue;
+    known.add(email);
+    restored.add(email);
+    const registered = new Date(entry.createdAt);
+    additions.push({
+      id: entry.id,
+      name: entry.name,
+      email,
+      phone: "",
+      program: "Public waitlist",
+      kind: "waitlist",
+      status: "waitlist",
+      registered: Number.isNaN(registered.getTime()) ? formatAdminDate() : formatAdminDate(registered),
+      notes: "Joined the waitlist on the site.",
+    });
+  }
+
+  if (additions.length === 0) return store;
+  return {
+    ...store,
+    members: [...additions, ...store.members],
+    suppressedEmails: store.suppressedEmails.filter((email) => !restored.has(email.toLowerCase())),
+  };
 }
 
 function mergeAccounts(store: AdminStore): AdminStore {

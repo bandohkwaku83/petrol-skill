@@ -1,4 +1,6 @@
-import { courses, internshipPostings, site } from "@/data/content";
+import { site } from "@/data/content";
+import { formatAdminDate } from "@/lib/admin-store";
+import { getPublished, markPayment, recordPaymentAttempt } from "@/lib/site-db";
 
 export type PaymentProvider = "paystack" | "accrue";
 export type PaymentKind = "internship" | "course";
@@ -26,9 +28,10 @@ function defaultJoinUrl(title: string) {
   return `https://wa.me/${site.whatsapp.replace(/\D/g, "")}?text=${text}`;
 }
 
-function product(kind: PaymentKind, slug: string) {
+async function product(kind: PaymentKind, slug: string) {
+  const published = await getPublished();
   if (kind === "internship") {
-    const posting = internshipPostings.find(
+    const posting = published.internships.find(
       (item) => item.slug === slug && item.status === "open",
     );
     if (!posting?.joinUrl) return null;
@@ -41,7 +44,7 @@ function product(kind: PaymentKind, slug: string) {
     };
   }
 
-  const course = courses.find((item) => item.slug === slug);
+  const course = published.courses.find((item) => item.slug === slug);
   if (!course) return null;
   return {
     slug: course.slug,
@@ -77,7 +80,7 @@ export async function startCheckout(input: {
   provider: PaymentProvider;
   origin: string;
 }): Promise<CheckoutResult> {
-  const item = product(input.kind, input.slug);
+  const item = await product(input.kind, input.slug);
   if (!item) return { ok: false, error: "That program is not open for payment." };
 
   const dollars = feeDollars(item.fee);
@@ -91,25 +94,46 @@ export async function startCheckout(input: {
   redirectUrl.searchParams.set("reference", reference);
   redirectUrl.searchParams.set("slug", item.slug);
 
-  if (input.provider === "paystack") {
-    return startPaystack({
-      email: input.email,
-      name: input.name,
-      dollars,
-      reference,
-      callbackUrl: redirectUrl.toString(),
-      slug: item.slug,
-    });
-  }
-
-  return startAccrue({
-    email: input.email,
+  await recordPaymentAttempt({
+    id: `pay-${crypto.randomUUID()}`,
     name: input.name,
-    dollars,
-    reference,
-    redirectUrl: redirectUrl.toString(),
+    email: input.email,
+    kind: input.kind,
+    program: item.title,
     slug: item.slug,
+    amount: item.fee,
+    provider: input.provider,
+    status: "pending",
+    reference,
+    date: formatAdminDate(),
+    notes: "",
   });
+
+  try {
+    const result =
+      input.provider === "paystack"
+        ? await startPaystack({
+            email: input.email,
+            name: input.name,
+            dollars,
+            reference,
+            callbackUrl: redirectUrl.toString(),
+            slug: item.slug,
+          })
+        : await startAccrue({
+            email: input.email,
+            name: input.name,
+            dollars,
+            reference,
+            redirectUrl: redirectUrl.toString(),
+            slug: item.slug,
+          });
+    if (!result.ok) await markPayment(reference, "failed", result.error);
+    return result;
+  } catch (error) {
+    await markPayment(reference, "failed", "The payment service did not respond.");
+    throw error;
+  }
 }
 
 async function startPaystack(input: {
@@ -209,7 +233,7 @@ export async function verifyCheckout(input: {
   provider: PaymentProvider;
   reference: string;
 }): Promise<VerifyResult> {
-  const item = product(input.kind, input.slug);
+  const item = await product(input.kind, input.slug);
   if (!item) return { ok: false, error: "That program is not open for payment." };
   if (!input.reference.startsWith(`pvl-${input.kind}-${item.slug}-`)) {
     return { ok: false, error: "This payment reference does not match the program." };
@@ -226,6 +250,7 @@ export async function verifyCheckout(input: {
     if (!paid.ok) return paid;
   }
 
+  await markPayment(input.reference, "paid");
   return { ok: true, joinUrl: item.joinUrl, title: item.title };
 }
 

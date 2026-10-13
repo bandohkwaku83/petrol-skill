@@ -2,8 +2,11 @@
 
 import {
   Fragment,
+  cloneElement,
+  isValidElement,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   type FormEvent,
@@ -124,6 +127,110 @@ export function Badge({
   );
 }
 
+export function useRowSelection() {
+  const [selected, setSelected] = useState<string[]>([]);
+  const selectedSet = useMemo(() => new Set(selected), [selected]);
+
+  function toggle(key: string) {
+    setSelected((current) => (current.includes(key) ? current.filter((item) => item !== key) : [...current, key]));
+  }
+
+  function setVisible(keys: string[], on: boolean) {
+    setSelected((current) => {
+      const drop = new Set(keys);
+      const kept = current.filter((key) => !drop.has(key));
+      return on ? [...kept, ...keys] : kept;
+    });
+  }
+
+  function drop(key: string) {
+    setSelected((current) => current.filter((item) => item !== key));
+  }
+
+  function clear() {
+    setSelected([]);
+  }
+
+  return { selected, selectedSet, toggle, setVisible, drop, clear };
+}
+
+export function SelectionBar({
+  shownKeys,
+  selectedCount,
+  onSetVisible,
+  onDelete,
+  onClear,
+}: {
+  shownKeys: string[];
+  selectedCount: number;
+  onSetVisible: (keys: string[], on: boolean) => void;
+  onDelete: () => void;
+  onClear: () => void;
+}) {
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        onClick={() => onSetVisible(shownKeys, true)}
+        disabled={shownKeys.length === 0}
+        className={ghostBtn}
+      >
+        Select all
+      </button>
+      {selectedCount > 0 ? (
+        <>
+          <p className="text-sm font-medium text-navy">{selectedCount} selected</p>
+          <button type="button" onClick={onDelete} className={primaryBtn}>
+            Delete selected
+          </button>
+          <button type="button" onClick={onClear} className={ghostBtn}>
+            Clear
+          </button>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+function SelectBox({
+  checked,
+  indeterminate = false,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  indeterminate?: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (ref.current) ref.current.indeterminate = indeterminate && !checked;
+  }, [indeterminate, checked]);
+  return (
+    <input
+      ref={ref}
+      type="checkbox"
+      checked={checked}
+      aria-label={label}
+      onChange={(event) => onChange(event.target.checked)}
+      className="h-4 w-4 accent-orange"
+    />
+  );
+}
+
+function withSelection(node: ReactNode, box: ReactNode) {
+  if (isValidElement<{ children?: ReactNode }>(node) && node.type === "tr") {
+    return cloneElement(node, undefined, <td className={`${cellClass} w-10`}>{box}</td>, node.props.children);
+  }
+  return (
+    <div className="flex items-start gap-3">
+      <div className="pt-0.5">{box}</div>
+      <div className="min-w-0 flex-1">{node}</div>
+    </div>
+  );
+}
+
 export function RecordList<T>({
   items,
   columns,
@@ -131,6 +238,7 @@ export function RecordList<T>({
   row,
   card,
   empty,
+  selection,
 }: {
   items: T[];
   columns: string[];
@@ -138,6 +246,7 @@ export function RecordList<T>({
   row: (item: T) => ReactNode;
   card: (item: T) => ReactNode;
   empty: ReactNode;
+  selection?: ReturnType<typeof useRowSelection>;
 }) {
   if (items.length === 0) {
     return (
@@ -147,20 +256,50 @@ export function RecordList<T>({
     );
   }
 
+  const keys = items.map(getKey);
+  const selectedCount = selection ? keys.filter((key) => selection.selectedSet.has(key)).length : 0;
+  const allChecked = Boolean(selection) && selectedCount === keys.length;
+  const someChecked = selectedCount > 0 && !allChecked;
+
+  function box(key: string, label: string) {
+    if (!selection) return null;
+    return (
+      <SelectBox
+        checked={selection.selectedSet.has(key)}
+        onChange={() => selection.toggle(key)}
+        label={label}
+      />
+    );
+  }
+
   return (
     <>
       <ul className="mt-6 space-y-3 md:hidden">
-        {items.map((item) => (
-          <li key={getKey(item)} className="border border-navy/10 bg-white p-4">
-            {card(item)}
-          </li>
-        ))}
+        {items.map((item) => {
+          const key = getKey(item);
+          const content = card(item);
+          return (
+            <li key={key} className="border border-navy/10 bg-white p-4">
+              {selection ? withSelection(content, box(key, "Select row")) : content}
+            </li>
+          );
+        })}
       </ul>
       <div className="mt-6 hidden overflow-hidden border border-navy/10 bg-white md:block">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="border-b border-navy/10 bg-sand text-[11px] font-bold uppercase tracking-[0.14em] text-muted">
               <tr>
+                {selection ? (
+                  <th className="w-10 px-4 py-3">
+                    <SelectBox
+                      checked={allChecked}
+                      indeterminate={someChecked}
+                      onChange={(checked) => selection.setVisible(keys, checked)}
+                      label="Select all"
+                    />
+                  </th>
+                ) : null}
                 {columns.map((column, index) => (
                   <th
                     key={column}
@@ -172,9 +311,15 @@ export function RecordList<T>({
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
-                <Fragment key={getKey(item)}>{row(item)}</Fragment>
-              ))}
+              {items.map((item) => {
+                const key = getKey(item);
+                const content = row(item);
+                return (
+                  <Fragment key={key}>
+                    {selection ? withSelection(content, box(key, "Select row")) : content}
+                  </Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -492,10 +637,10 @@ export function TextAction({
   );
 }
 
-export function Actions({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
+export function Actions({ onEdit, onDelete }: { onEdit?: () => void; onDelete: () => void }) {
   return (
     <div className="flex gap-3 md:justify-end">
-      <TextAction onClick={onEdit}>Edit</TextAction>
+      {onEdit ? <TextAction onClick={onEdit}>Edit</TextAction> : null}
       <TextAction tone="danger" onClick={onDelete}>
         Delete
       </TextAction>

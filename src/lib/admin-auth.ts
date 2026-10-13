@@ -82,6 +82,24 @@ export async function loginAdmin(input: { email: string; password: string }) {
   return { session };
 }
 
+export async function rememberAdminSession(input: { name: string; email: string; password: string }) {
+  const name = input.name.trim();
+  const email = input.email.trim().toLowerCase();
+  const credential: Credential = {
+    name,
+    email,
+    passwordHash: await hashPassword(email, input.password),
+  };
+  const session = { name, email };
+  try {
+    localStorage.setItem(CREDENTIAL_KEY, JSON.stringify(credential));
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  } catch {
+    return { error: "This browser could not save the admin sign-in." };
+  }
+  return { session };
+}
+
 export function logoutAdmin() {
   localStorage.removeItem(SESSION_KEY);
 }

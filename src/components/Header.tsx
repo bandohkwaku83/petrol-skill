@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { navLinks, site } from "@/data/content";
-import { ACCOUNT_EVENT, getSession, type AccountSession } from "@/lib/account";
+import { ACCOUNT_EVENT, getSession, refreshSession, type AccountSession } from "@/lib/account";
 
 export function Header() {
   const pathname = usePathname();
@@ -24,6 +24,7 @@ export function Header() {
   useEffect(() => {
     const sync = () => setAccount(getSession());
     sync();
+    void refreshSession();
     window.addEventListener(ACCOUNT_EVENT, sync);
     return () => window.removeEventListener(ACCOUNT_EVENT, sync);
   }, []);

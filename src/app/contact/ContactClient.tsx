@@ -96,8 +96,8 @@ export default function ContactClient() {
                 },
                 {
                   label: "WhatsApp",
-                  content: "Message us on WhatsApp",
-                  href: `https://wa.me/${site.whatsapp.replace("+", "")}`,
+                  content: "Join the WhatsApp community",
+                  href: site.social.whatsapp,
                   icon: "whatsapp" as const,
                 },
                 { label: "Location", content: site.address, icon: "pin" as const },
