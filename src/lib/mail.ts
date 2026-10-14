@@ -7,10 +7,34 @@ export type MailRecipient = {
 
 type SendResult = { ok: true; sent: number } | { ok: false; error: string; sent: number };
 
+const addressPattern = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
+
+function unwrap(value: string) {
+  let current = value.trim();
+  while (
+    current.length > 1 &&
+    ((current.startsWith('"') && current.endsWith('"')) ||
+      (current.startsWith("'") && current.endsWith("'")))
+  ) {
+    current = current.slice(1, -1).trim();
+  }
+  return current;
+}
+
 function fromAddress() {
-  const configured = process.env.RESEND_FROM?.trim();
-  if (configured) return configured;
-  return `${site.shortName} <${site.email}>`;
+  const fallback = `${site.shortName} <${site.email}>`;
+  const configured = unwrap(process.env.RESEND_FROM ?? "");
+  if (!configured) return fallback;
+  if (addressPattern.test(configured)) return configured;
+
+  const named = configured.match(/^(.*?)\s*<\s*([^<>"]+@[^<>"]+)\s*>$/);
+  if (!named) return fallback;
+
+  const name = unwrap(named[1]).replace(/\s+/g, " ");
+  const email = named[2].trim();
+  if (!addressPattern.test(email)) return fallback;
+  if (!name || /[<>"]/.test(name)) return email;
+  return `${name} <${email}>`;
 }
 
 function escapeHtml(value: string) {
@@ -68,11 +92,11 @@ export async function sendUserEmails(input: {
     } | null;
 
     if (!response.ok) {
-      return {
-        ok: false,
-        sent,
-        error: payload?.message || "Resend could not send this email.",
-      };
+      const message = payload?.message || "";
+      const error = message.includes("Invalid `from` field")
+        ? "The sender address is not one Resend can use. The people you selected are fine."
+        : message || "Resend could not send this email.";
+      return { ok: false, sent, error };
     }
 
     sent += Array.isArray(payload?.data) ? payload.data.length : chunk.length;
