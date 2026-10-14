@@ -16,7 +16,7 @@ export function Footer() {
           />
           <p className="mt-6 max-w-sm text-sm leading-relaxed text-white/60">
             Affordable live training for oil, gas, energy, and emerging technology
-            professionals — worldwide.
+            professionals worldwide.
           </p>
         </div>
 

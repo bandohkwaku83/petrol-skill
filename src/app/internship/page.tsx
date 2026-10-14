@@ -30,8 +30,8 @@ export default async function InternshipPage() {
     <>
       <PageHero
         title="Internships are posted here when a cohort opens"
-        description="This page is a board. An open internship card takes payment with Paystack or Accrue. After payment, the join link appears. Between cohorts, the board stays clear."
-        image="/images/group-02.jpg"
+        description="This page is a board. An open internship card asks for your country, then takes payment. After payment, the join link appears. Between cohorts, the board stays clear."
+        image="/images/flagship-session.jpg"
         actions={
           <>
             <Magnetic>
@@ -71,7 +71,7 @@ export default async function InternshipPage() {
               description={
                 openCount === 0
                   ? "New internships show up in this list when PetroSkill is taking applications. Until then, join the waitlist and we will write when the next one is up."
-                  : "Tap an open card to pay with Paystack or Accrue. The join link appears after the payment is confirmed."
+                  : "Tap an open card, choose your country, and pay. The join link appears after the payment is confirmed."
               }
             />
           </Reveal>
@@ -135,48 +135,6 @@ export default async function InternshipPage() {
               </ul>
             </div>
           ) : null}
-        </div>
-      </section>
-
-      <section className="bg-sand">
-        <div className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
-          <Reveal>
-            <SectionHeading
-              eyebrow="How this page works"
-              title="Posted when needed, taken down when it closes"
-            />
-          </Reveal>
-          <ol className="mt-12 grid gap-4 md:grid-cols-3">
-            {[
-              {
-                title: "We post it here",
-                detail:
-                  "An internship appears on this board only when applications for that cohort are open.",
-              },
-              {
-                title: "You pay from the card",
-                detail:
-                  "Tap the open card and pay with Paystack or Accrue. After payment is confirmed, a join link appears.",
-              },
-              {
-                title: "It leaves when the intake ends",
-                detail:
-                  "Closed postings move to the archive. The board returns to empty until the next one is posted.",
-              },
-            ].map((step, i) => (
-              <Reveal key={step.title} delay={0.08 * i}>
-                <li className="h-full border border-navy/10 bg-white p-6">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-orange">
-                    {String(i + 1).padStart(2, "0")}
-                  </p>
-                  <h3 className="mt-3 font-[family-name:var(--font-display)] text-xl font-semibold text-navy">
-                    {step.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted">{step.detail}</p>
-                </li>
-              </Reveal>
-            ))}
-          </ol>
         </div>
       </section>
     </>

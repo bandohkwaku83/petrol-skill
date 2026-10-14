@@ -19,41 +19,6 @@ export const site = {
   },
 };
 
-/** Local brand photography in /public/images */
-export const img = {
-  hero: "/images/hero-ppe-orange.png",
-  heroAlt: "/images/hero-ppe-yellow.png",
-  heroFull: "/images/hero-ppe-full.png",
-  about: "/images/about-ppe.png",
-  cta: "/images/cta-thumbs-up.png",
-  group: "/images/group-01.jpg",
-  groupAlt: "/images/group-02.jpg",
-  team: [
-    "/images/team-01.jpg",
-    "/images/team-02.jpg",
-    "/images/team-03.jpg",
-    "/images/team-04.jpg",
-    "/images/team-05.jpg",
-    "/images/team-06.jpg",
-    "/images/team-07.jpg",
-    "/images/team-08.jpg",
-    "/images/team-09.jpg",
-    "/images/team-10.jpg",
-  ],
-  gallery: [
-    "/images/gallery-01.jpg",
-    "/images/gallery-02.jpg",
-    "/images/gallery-03.jpg",
-    "/images/gallery-04.jpg",
-    "/images/gallery-05.jpg",
-    "/images/gallery-06.jpg",
-    "/images/gallery-07.jpg",
-    "/images/gallery-08.jpg",
-    "/images/gallery-09.jpg",
-    "/images/gallery-10.jpg",
-  ],
-} as const;
-
 export const navLinks = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
@@ -62,14 +27,6 @@ export const navLinks = [
   { href: "/news", label: "News" },
   { href: "/events", label: "Events" },
   { href: "/contact", label: "Contact" },
-];
-
-export const stats = [
-  { value: "5,000+", label: "Participants Trained" },
-  { value: "40+", label: "Countries Reached" },
-  { value: "80+", label: "Industry Experts" },
-  { value: "120+", label: "Courses Delivered" },
-  { value: "35+", label: "Partner Organizations" },
 ];
 
 export const categories = [
@@ -284,7 +241,7 @@ export const courses: Course[] = [
     instructor: "Ms. Efua Addo",
     fee: "$179",
     audience: "Engineers and geoscientists seeking practical programming skills",
-    image: "/images/team-07.jpg",
+    image: "/images/hero-ppe-full.png",
     outcomes: [
       "Write clean Python scripts for engineering datasets",
       "Visualize well and production data effectively",
@@ -311,7 +268,7 @@ export const courses: Course[] = [
     instructor: "Eng. Ibrahim Touré",
     fee: "$219",
     audience: "Drilling engineers, wellsite supervisors, and operations engineers",
-    image: "/images/team-05.jpg",
+    image: "/images/hero-ppe-yellow.png",
     outcomes: [
       "Apply core well design principles to real scenarios",
       "Anticipate drilling risks before they escalate",
@@ -337,7 +294,7 @@ export const courses: Course[] = [
     instructor: "Dr. Abena Owusu",
     fee: "$239",
     audience: "Geoscientists, petrophysicists, and subsurface team members",
-    image: "/images/gallery-03.jpg",
+    image: "/images/about-ppe.png",
     outcomes: [
       "Interpret key subsurface datasets for development context",
       "Link geological uncertainty to well and facility decisions",
@@ -364,7 +321,7 @@ export const courses: Course[] = [
     instructor: "Ms. Efua Addo",
     fee: "$189",
     audience: "Engineers, analysts, and operations staff building data skills",
-    image: "/images/gallery-08.jpg",
+    image: "/images/hero-image.png",
     outcomes: [
       "Frame an analytics question an energy team can act on",
       "Clean and explore operational datasets with confidence",
@@ -390,7 +347,7 @@ export const courses: Course[] = [
     instructor: "Mr. Daniel Asante",
     fee: "$149",
     audience: "Graduates, early-career professionals, and career switchers in energy",
-    image: "/images/team-09.jpg",
+    image: "/images/hero-ppe-orange.png",
     outcomes: [
       "Tell a clear story about your technical experience",
       "Prepare for technical and behavioral interviews",
@@ -416,7 +373,7 @@ export const courses: Course[] = [
     instructor: "Eng. Kwesi Boateng",
     fee: "$209",
     audience: "Professionals preparing for energy and engineering certifications",
-    image: "/images/team-10.jpg",
+    image: "/images/flagship-session.jpg",
     outcomes: [
       "Choose a certification that matches your current role",
       "Build a study plan around live review sessions",
@@ -433,24 +390,24 @@ export const courses: Course[] = [
 
 export const values = [
   {
-    title: "Industry Relevance",
+    title: "Practical Excellence",
     description:
-      "Every program is shaped by practicing experts so learning maps directly to real operational challenges.",
+      "We prioritize applied learning that transforms technical knowledge into practical skills through engineering exercises, case studies, and simulation tools.",
   },
   {
-    title: "Affordable Access",
+    title: "Industry Alignment",
     description:
-      "We keep professional education within reach for individuals and organizations across emerging markets.",
+      "We align our training with real-world oil and gas operations, industry practices, and the evolving demands of the energy sector.",
   },
   {
-    title: "Live Instruction",
+    title: "Accessible Opportunity",
     description:
-      "Sessions are instructor-led and interactive—not passive video libraries—so questions get answered in real time.",
+      "We make quality technical education and professional development more accessible to aspiring energy professionals, regardless of their location or career stage.",
   },
   {
-    title: "Global Reach",
+    title: "Continuous Growth",
     description:
-      "Participants join from dozens of countries, building networks that span basins, companies, and career stages.",
+      "We foster curiosity, innovation, collaboration, and lifelong learning to help participants grow into competent, confident, and adaptable professionals.",
   },
 ];
 
@@ -481,17 +438,17 @@ export const leadership = [
   {
     name: "Daniel Darkwah Asante",
     role: "Founder & Head of Learning",
-    image: "/images/gallery-09.jpg",
+    image: "/images/Danny.JPG",
   },
   {
     name: "Alex Osei Yeboah",
     role: "Student Support & Finance Lead",
-    image: "/images/team-06.jpg",
+    image: "/images/Alex.JPG",
   },
   {
     name: "Kofi Owongo Koomson",
     role: "Student and Industry Liaison",
-    image: "/images/gallery-07.jpg",
+    image: "/images/Kofi.PNG",
   },
 ];
 
@@ -524,10 +481,10 @@ export const testimonials: {
   {
     kind: "student",
     quote:
-      "PVL’s live sessions felt like a real classroom with industry mentors. I applied production optimization ideas at work within weeks.",
-    name: "Fatima Diallo",
-    role: "Production Engineer",
-    company: "West African Independent",
+      "During the virtual internship, I improved my knowledge in reservoir, production, facilities and well engineering. I also had the opportunity to work with tNavigator which gave me the practical experience.",
+    name: "Mauricio Checa",
+    role: "Petroleum Engineering",
+    company: "Ecuador",
   },
   {
     kind: "student",
@@ -590,7 +547,7 @@ export const news = [
     excerpt:
       "Applications are now open for our flagship virtual internship, featuring weekly industry speakers and a structured project track.",
     image:
-      "/images/group-02.jpg",
+      "/images/flagship-session.jpg",
     content:
       "PetroSkill Virtual Learning is accepting applications for Virtual Internship Cohort 9. Participants will join live sessions, complete guided projects, and interact with guest speakers from operating companies and consulting firms. Registration closes two weeks before kickoff. Apply via Microsoft Forms on the internship page.",
   },
@@ -614,7 +571,7 @@ export const news = [
     excerpt:
       "A new scholarship pathway will support high-potential applicants joining selected technical short courses.",
     image:
-      "/images/group-01.jpg",
+      "/images/why-pvl-team.jpg",
     content:
       "Through this partnership, eligible applicants can receive partial fee support for designated PVL programs. Details and eligibility criteria will be shared with shortlisted candidates during the registration review process.",
   },
@@ -636,7 +593,7 @@ export const news = [
     date: "2 June 2026",
     excerpt:
       "Graduates from the latest internship cohort are using their projects in interviews for subsurface, operations, and commercial support roles.",
-    image: "/images/gallery-07.jpg",
+    image: "/images/about-ppe.png",
     content:
       "Virtual Internship Cohort 8 closed with participant presentations attended by guest practitioners. Several alumni have since moved into graduate and junior seats, and they credit the weekly structure—live teaching, a guided project, and a career clinic—for giving them something concrete to discuss with hiring managers.",
   },
@@ -647,7 +604,7 @@ export const news = [
     date: "24 June 2026",
     excerpt:
       "Lightning talks from reservoir, drilling, and digital energy practitioners, plus the questions the audience would not let go.",
-    image: "/images/gallery-04.jpg",
+    image: "/images/hero-ppe-full.png",
     content:
       "Industry Speakers Night brought practicing engineers and digital specialists together for short talks on well planning, production surveillance, and where analytics actually helps an asset team. The recording notes and speaker themes are now reflected in upcoming workshops listed on the events page.",
   },
@@ -658,7 +615,7 @@ export const news = [
     date: "15 May 2026",
     excerpt:
       "Our Head of Technical Programs on teaching reservoir simulation to people who have to use it on Monday morning.",
-    image: "/images/team-04.jpg",
+    image: "/images/hero-ppe-orange.png",
     content:
       "Dr. Ama Mensah leads PVL’s technical programs and teaches Reservoir Simulation Fundamentals. Her sessions stay close to model setup, history matching, and how to explain a forecast to a team that does not live in the simulator. She also reviews curriculum with university and industry partners before a cohort opens.",
   },
@@ -704,8 +661,8 @@ export const registrationSteps = [
 ];
 
 export const whyExists = {
-  title: "A training institute, not an online course library",
-  body: "PetroSkill Virtual Learning is an international professional training organization. We exist to provide affordable, industry-relevant education in oil, gas, energy, and emerging technology — delivered through live instructor-led virtual sessions, not pre-recorded courses. The website is a front door to those programs. It is not a learning management system: there are no online lessons, quizzes, progress tracks, assignments, or certificates issued from the site.",
+  title: "A specialized training platform, not an online course library",
+  body: "PetroSkill Virtual Learning is an international professional training organization. We exist to provide students, graduates and industry professionals with affordable, industry-relevant oil and gas training delivered through live instructor-led virtual sessions, not pre-recorded courses. Away but in tandem with oil and gas, we provide expert programming training, Health Safety and Environment and career development training for our energy enthusiasts.",
 };
 
 export const events = [
@@ -735,59 +692,6 @@ export const events = [
     status: "previous" as const,
     description:
       "An evening of lightning talks from reservoir, drilling, and digital energy practitioners.",
-  },
-];
-
-export const gallery = [
-  {
-    title: "PetroSkill professional portrait",
-    category: "Team",
-    image: "/images/gallery-01.jpg",
-  },
-  {
-    title: "Instructor-ready presentation",
-    category: "Training Sessions",
-    image: "/images/gallery-02.jpg",
-  },
-  {
-    title: "Field-ready professional",
-    category: "Behind-the-Scenes",
-    image: "/images/gallery-03.jpg",
-  },
-  {
-    title: "Program facilitator",
-    category: "Guest Speakers",
-    image: "/images/gallery-04.jpg",
-  },
-  {
-    title: "Cohort mentor",
-    category: "Workshops",
-    image: "/images/gallery-05.jpg",
-  },
-  {
-    title: "Learning support team",
-    category: "Team",
-    image: "/images/gallery-06.jpg",
-  },
-  {
-    title: "Graduate pathway coach",
-    category: "Graduation Ceremonies",
-    image: "/images/gallery-07.jpg",
-  },
-  {
-    title: "Technical program lead",
-    category: "Training Sessions",
-    image: "/images/gallery-08.jpg",
-  },
-  {
-    title: "Industry-facing trainer",
-    category: "Workshops",
-    image: "/images/gallery-09.jpg",
-  },
-  {
-    title: "PVL brand ambassador",
-    category: "Behind-the-Scenes",
-    image: "/images/gallery-10.jpg",
   },
 ];
 
@@ -836,7 +740,7 @@ export const internshipPostings: InternshipPosting[] = [
     joinUrl: "https://wa.me/233547964362?text=I%20paid%20for%20Virtual%20Internship%20Cohort%209",
     summary:
       "A six-week live internship for graduates and early-career professionals. Weekly sessions, a guided project, and guest speakers from operating companies.",
-    image: "/images/group-02.jpg",
+    image: "/images/flagship-session.jpg",
     overview:
       "Cohort 9 is a posted intake, not a standing program. Participants join live online sessions, complete guided projects that mirror team deliverables, and hear from practicing speakers across subsurface, operations, and commercial work.",
     objectives: [
@@ -874,7 +778,7 @@ export const internshipPostings: InternshipPosting[] = [
       },
       {
         q: "How do I register?",
-        a: "Tap the open internship card, pay with Paystack or Accrue, then use the join link that appears after payment is confirmed.",
+        a: "Tap the open internship card, choose your country, and pay. The join link appears after payment is confirmed.",
       },
       {
         q: "What if this cohort fills up?",
@@ -894,7 +798,7 @@ export const internshipPostings: InternshipPosting[] = [
     fee: "$149",
     summary:
       "Applications for this intake have closed. 61 participants completed the six-week virtual internship.",
-    image: "/images/team-08.jpg",
+    image: "/images/why-pvl-team.jpg",
     overview:
       "Cohort 8 ran as a posted internship and is no longer accepting applications. Participants completed live sessions and a capstone they could walk through in interviews.",
     objectives: [

@@ -49,7 +49,7 @@ export default function CoursesPage() {
     <>
       <PageHero
         title="Live professional programs for energy careers"
-        description="Tap a course to pay with Paystack or Accrue. After payment is confirmed, a join link appears."
+        description="Tap a course, choose your country, and pay. After payment is confirmed, a join link appears."
         image="/images/hero-ppe-yellow.png"
         actions={
           <>
@@ -73,7 +73,7 @@ export default function CoursesPage() {
             <SectionHeading
               eyebrow="Open Programs"
               title="Upcoming live courses"
-              description="Tap a course to pay with Paystack or Accrue. The join link appears after the payment is confirmed."
+              description="Tap a course, choose your country, and pay. The join link appears after the payment is confirmed."
             />
           </Reveal>
           <div className="mt-14 grid grid-cols-2 gap-3 sm:gap-6 xl:grid-cols-3">

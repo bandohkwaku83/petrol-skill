@@ -225,7 +225,7 @@ export function blankInternship(): InternshipPosting {
     format: "Live online",
     fee: "",
     summary: "",
-    image: "/images/group-02.jpg",
+    image: "/images/flagship-session.jpg",
     overview: "",
     objectives: [],
   };

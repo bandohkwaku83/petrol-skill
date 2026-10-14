@@ -78,6 +78,7 @@ export async function startCheckout(input: {
   name: string;
   email: string;
   provider: PaymentProvider;
+  country: string;
   origin: string;
 }): Promise<CheckoutResult> {
   const item = await product(input.kind, input.slug);
@@ -119,6 +120,7 @@ export async function startCheckout(input: {
             reference,
             callbackUrl: redirectUrl.toString(),
             slug: item.slug,
+            country: input.country,
           })
         : await startAccrue({
             email: input.email,
@@ -127,6 +129,7 @@ export async function startCheckout(input: {
             reference,
             redirectUrl: redirectUrl.toString(),
             slug: item.slug,
+            country: input.country,
           });
     if (!result.ok) await markPayment(reference, "failed", result.error);
     return result;
@@ -143,6 +146,7 @@ async function startPaystack(input: {
   reference: string;
   callbackUrl: string;
   slug: string;
+  country: string;
 }): Promise<CheckoutResult> {
   const secret = process.env.PAYSTACK_SECRET_KEY;
   if (!secret) {
@@ -165,6 +169,7 @@ async function startPaystack(input: {
       metadata: {
         slug: input.slug,
         name: input.name,
+        country: input.country,
         cancel_action: input.callbackUrl,
       },
     }),
@@ -192,6 +197,7 @@ async function startAccrue(input: {
   reference: string;
   redirectUrl: string;
   slug: string;
+  country: string;
 }): Promise<CheckoutResult> {
   const secret = accrueKey();
   if (!secret) {
@@ -204,13 +210,13 @@ async function startAccrue(input: {
       paymentType: deposit
       amount: ${input.dollars}
       currency: usd
-      countryCode: "GH"
+      countryCode: ${quote(input.country)}
       reference: ${quote(input.reference)}
       redirectUrl: ${quote(input.redirectUrl)}
       firstName: ${quote(firstName)}
       lastName: ${quote(lastName)}
       email: ${quote(input.email)}
-      metadata: { slug: ${quote(input.slug)} }
+      metadata: { slug: ${quote(input.slug)}, country: ${quote(input.country)} }
     ) {
       hostedLink
       id

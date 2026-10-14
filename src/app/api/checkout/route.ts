@@ -6,6 +6,7 @@ import {
   type PaymentKind,
   type PaymentProvider,
 } from "@/lib/internship-payment";
+import { marketFor } from "@/lib/payment-markets";
 import { readPaymentEmail, readUserSession } from "@/lib/site-db";
 
 export const runtime = "nodejs";
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest) {
     name?: unknown;
     email?: unknown;
     provider?: unknown;
+    country?: unknown;
   } | null;
 
   const account = await signedInUser();
@@ -44,9 +46,17 @@ export async function POST(request: NextRequest) {
   const kind = kindOf(body?.kind);
   const slug = typeof body?.slug === "string" ? body.slug : "";
   const provider = providerOf(body?.provider);
+  const country = typeof body?.country === "string" ? body.country : "";
+  const market = marketFor(country);
 
-  if (!kind || !slug || !provider) {
-    return Response.json({ ok: false, error: "Choose a payment method." }, { status: 400 });
+  if (!kind || !slug || !provider || !market) {
+    return Response.json({ ok: false, error: "Choose your country to continue." }, { status: 400 });
+  }
+  if (provider === "accrue" && market.code === "OTHER") {
+    return Response.json(
+      { ok: false, error: "Choose your country to pay with Accrue." },
+      { status: 400 },
+    );
   }
 
   try {
@@ -56,6 +66,7 @@ export async function POST(request: NextRequest) {
       name: account.name,
       email: account.email,
       provider,
+      country: market.code,
       origin: request.nextUrl.origin,
     });
     return Response.json(result, { status: result.ok ? 200 : 400 });

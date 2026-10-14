@@ -29,7 +29,7 @@ export default function EventsPage() {
     <>
       <PageHero
         title="Webinars, workshops, and community gatherings"
-        description="Join live sessions that complement our courses — or catch recaps from previous events."
+        description="Join live sessions that complement our courses or catch recaps from previous events."
         image="/images/hero-ppe-full.png"
       />
 

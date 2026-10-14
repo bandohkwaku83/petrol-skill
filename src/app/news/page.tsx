@@ -44,7 +44,7 @@ export default function NewsPage() {
       <PageHero
         title="Announcements, stories, and industry learning notes"
         description="Course openings, internship updates, industry notes, partnerships, success stories, event recaps, and speaker spotlights."
-        image="/images/group-02.jpg"
+        image="/images/why-pvl-team.jpg"
       />
 
       <section className="bg-white">

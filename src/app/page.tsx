@@ -71,11 +71,11 @@ export default function HomePage() {
             <SplitHeadline
               className="max-w-4xl font-[family-name:var(--font-display)] text-[clamp(2rem,4.6vw,3.75rem)] font-semibold leading-[1.02] tracking-[-0.03em]"
               lines={[
-                "Live training for",
-                "energy careers",
-                "that matter.",
+                "Build the Skills.",
+                "Gain the Experience.",
+                "Become Industry-Ready.",
               ]}
-              glowWord="matter"
+              glowWord="Industry-Ready"
             />
           </div>
 
@@ -85,8 +85,7 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.85 }}
             className="mt-7 max-w-lg text-base leading-relaxed text-white/80 md:text-lg"
           >
-            Instructor-led virtual programs in oil, gas, and emerging technology —
-            built for people who want real skills, not another video library.
+            Practical oil and gas training, virtual internships, and industry-relevant simulation tools for the next generation of energy professionals.
           </motion.p>
 
           <motion.div
@@ -120,34 +119,27 @@ export default function HomePage() {
       </section>
 
       {/* About */}
-      <section className="overflow-hidden bg-background pt-16 md:pt-24 lg:pt-28">
-        <div className="mx-auto grid max-w-7xl lg:grid-cols-12">
-          <Reveal className="relative min-h-[420px] lg:col-span-7 lg:min-h-[640px]">
+      <section className="overflow-hidden bg-sand">
+        <div className="mx-auto grid max-w-7xl items-center lg:grid-cols-12">
+          <Reveal className="relative aspect-[5/4] bg-[#f4f5f7] lg:col-span-7">
             <Image
-              src="/images/who-are-we.jpg"
+              src="/images/Who-are-we.PNG"
               alt="PetroSkill team giving a thumbs up"
               fill
-              className="object-cover object-[center_20%]"
+              className="object-contain object-center"
               sizes="(max-width:1024px) 100vw, 58vw"
             />
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-tr from-navy/30 to-transparent"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.2 }}
-            />
           </Reveal>
-          <div className="flex flex-col justify-center bg-sand px-5 py-16 md:px-12 lg:col-span-5">
+          <div className="flex flex-col justify-center px-5 py-16 md:px-12 lg:col-span-5 lg:py-20">
             <Reveal>
               <SectionHeading
                 eyebrow="Who we are"
-                title="Industry depth. Human teaching."
-                description="PVL connects practicing experts with ambitious professionals across Africa and the world — through scheduled live sessions, not passive content dumps."
+                title="Practical learning. Industry-led."
+                description="PetroSkill Virtual Learning (PVL) equips students, graduates, and young professionals with practical, industry-ready skills for the oil and gas sector through expert-led training, hands-on learning, and engineering simulation tools. We bridge the gap between academic theory and industry practice, preparing the next generation of energy professionals for successful careers."
               />
             </Reveal>
             <div className="mt-10 space-y-6 border-t border-navy/10 pt-8">
-              {["Live", "Applied", "Open"].map((word, i) => (
+              {["Live", "Practical", "Accessible"].map((word, i) => (
                 <Reveal key={word} delay={0.1 * i}>
                   <p className="font-[family-name:var(--font-display)] text-4xl font-semibold text-navy">
                     {word}
@@ -155,9 +147,9 @@ export default function HomePage() {
                   <p className="mt-1 text-sm text-muted">
                     {
                       [
-                        "Instructor-led on Microsoft Teams",
-                        "Case studies from real operating contexts",
-                        "Pay with Paystack or Accrue, then join",
+                        "Instructor-led sessions and interactive discussions",
+                        "Engineering exercises, industry case studies, and simulation tools",
+                        "Virtual learning opportunities for students, graduates, and professionals worldwide",
                       ][i]
                     }
                   </p>
@@ -180,8 +172,8 @@ export default function HomePage() {
             <Reveal>
               <SectionHeading
                 eyebrow="Featured programs"
-                title="Upcoming live cohorts"
-                description="Tap a course to pay with Paystack or Accrue. The join link appears after payment."
+                title="Upcoming live programs"
+                description="Tap a course, choose your country, and pay. The join link appears after payment."
               />
             </Reveal>
             <Reveal delay={0.15}>
@@ -246,8 +238,7 @@ export default function HomePage() {
               </span>
             </h2>
             <p className="mt-6 max-w-md text-base leading-relaxed text-white/75 md:text-lg">
-              Internships are posted when a cohort opens. Live mentors, industry speakers,
-              and a capstone you can talk about in interviews.
+              Internships are posted when a cohort opens. Interns gain exposure to key operational areas of the oil and gas industry, complemented by additional courses that enhance their technical skills and professional development.
             </p>
             <div className="mt-10 flex flex-wrap gap-3">
               <Magnetic>
@@ -265,9 +256,9 @@ export default function HomePage() {
           <div className="flex flex-col justify-end border-l border-white/15 md:pl-10">
             {[
               "Structured weekly live sessions",
-              "Guided projects with feedback",
+              "Capstone project with feedback",
               "Guest speakers from industry",
-              "Career clinic & alumni network",
+              "Certificate of completion and transcript provision",
             ].map((item, i) => (
               <Reveal key={item} delay={0.1 * i}>
                 <div className="border-b border-white/10 py-5 font-[family-name:var(--font-display)] text-lg md:text-xl">

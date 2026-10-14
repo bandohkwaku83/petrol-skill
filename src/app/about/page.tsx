@@ -5,15 +5,15 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/Button";
 import { PageHero } from "@/components/PageHero";
 import { SectionHeading } from "@/components/SectionHeading";
-import { CountUp, FloatCard, Magnetic, Reveal } from "@/components/motion";
-import { leadership, stats, values, whyExists } from "@/data/content";
+import { FloatCard, Magnetic, Reveal } from "@/components/motion";
+import { leadership, values, whyExists } from "@/data/content";
 
 export default function AboutPage() {
   return (
     <>
       <PageHero
         title="Why PetroSkill Virtual Learning exists"
-        description="We started PVL to close the gap between academic credentials and the practical skills energy employers need — through affordable, live professional training."
+        description="PVL exists to bridge the gap between classroom theory and real-world application by delivering hands-on training, expert-led sessions, and job-focused learning experiences."
         image="/images/about-ppe.png"
       />
 
@@ -54,7 +54,7 @@ export default function AboutPage() {
                 Mission
               </p>
               <h2 className="mt-4 font-[family-name:var(--font-display)] text-2xl font-semibold leading-snug text-navy md:text-3xl">
-                Deliver affordable, industry-relevant education that professionals can apply immediately.
+                To provide practical, industry-driven training that develops skilled, employable, and future-ready oil and gas professionals across Africa and beyond.
               </h2>
             </article>
           </FloatCard>
@@ -64,7 +64,7 @@ export default function AboutPage() {
                 Vision
               </p>
               <h2 className="mt-4 font-[family-name:var(--font-display)] text-2xl font-semibold leading-snug md:text-3xl">
-                Become a leading professional training organization for the global energy sector.
+                To become the leading virtual technical training hub in petroleum and energy education for the global energy sector.
               </h2>
             </article>
           </FloatCard>
@@ -97,19 +97,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-navy py-20 text-white md:py-24">
-        <div className="mx-auto max-w-7xl px-5 md:px-8">
-          <Reveal>
-            <SectionHeading light eyebrow="Our Impact" title="Numbers that reflect global reach" />
-          </Reveal>
-          <div className="mt-12 grid grid-cols-2 gap-8 md:grid-cols-5">
-            {stats.map((s) => (
-              <CountUp key={s.label} value={s.value} label={s.label} />
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="bg-sand">
         <div className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
           <Reveal>
@@ -127,7 +114,9 @@ export default function AboutPage() {
                       src={person.image}
                       alt={person.name}
                       fill
-                      className="origin-top object-cover object-top transition duration-700 hover:scale-105"
+                      className={`origin-top object-cover object-top transition duration-700 ${
+                        i === 0 ? "scale-[1.35] hover:scale-[1.42]" : "hover:scale-105"
+                      }`}
                       sizes="(max-width:768px) 100vw, 33vw"
                     />
                   </div>
