@@ -3,8 +3,7 @@ import { Button } from "@/components/Button";
 import { PageHero } from "@/components/PageHero";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Magnetic, Reveal } from "@/components/motion";
-import { internshipPostings } from "@/data/content";
-import { getPublished } from "@/lib/site-db";
+import { getPublishedOrEmpty } from "@/lib/site-db";
 import { InternshipBoard } from "./InternshipBoard";
 
 export const dynamic = "force-dynamic";
@@ -16,12 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function InternshipPage() {
-  let postings = internshipPostings;
-  try {
-    postings = (await getPublished()).internships;
-  } catch {
-    postings = internshipPostings;
-  }
+  const postings = (await getPublishedOrEmpty()).internships;
   const openPostings = postings.filter((posting) => posting.status === "open");
   const closedPostings = postings.filter((posting) => posting.status === "closed");
   const openCount = openPostings.length;
@@ -56,7 +50,7 @@ export default async function InternshipPage() {
           />
           <StatusFact
             label="Last posted"
-            value={internshipPostings[0]?.posted ?? "—"}
+            value={postings.find((posting) => posting.posted)?.posted ?? "—"}
           />
           <StatusFact label="Between intakes" value="Board stays empty" />
         </div>

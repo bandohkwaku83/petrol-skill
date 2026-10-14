@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { BrandLogo } from "@/components/BrandLogo";
 import { navLinks, site } from "@/data/content";
 import { ACCOUNT_EVENT, getSession, refreshSession, type AccountSession } from "@/lib/account";
 
@@ -13,6 +13,19 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [account, setAccount] = useState<AccountSession | null>(null);
   const isHome = pathname === "/";
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [open]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -42,17 +55,8 @@ export function Header() {
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 md:px-8">
-        <Link href="/" className="group flex shrink-0 items-center">
-          <Image
-            src="/images/Logo.png"
-            alt={site.name}
-            width={200}
-            height={52}
-            className={`h-9 w-auto object-contain transition duration-300 md:h-11 ${
-              solid ? "" : "brightness-0 invert"
-            }`}
-            priority
-          />
+        <Link href="/" aria-label={site.name} className="group flex shrink-0 items-center">
+          <BrandLogo tone={solid ? "color" : "light"} priority />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -111,7 +115,7 @@ export function Header() {
       </div>
 
       {open ? (
-        <div className="border-t border-navy/10 bg-white px-5 py-6 text-navy lg:hidden">
+        <div className="max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-navy/10 bg-white px-5 py-6 text-navy lg:hidden">
           <nav className="flex flex-col gap-1">
             {navLinks.map((link) => (
               <Link

@@ -114,7 +114,7 @@ export default function ContactClient() {
                           href={item.href}
                           target={item.href.startsWith("http") ? "_blank" : undefined}
                           rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                          className="mt-1 block font-medium text-navy hover:text-blue"
+                          className="mt-1 block break-words font-medium text-navy hover:text-blue"
                         >
                           {item.content}
                         </a>

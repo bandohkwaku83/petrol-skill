@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
-import { news } from "@/data/content";
-import { getPublished } from "@/lib/site-db";
+import { getPublishedOrEmpty } from "@/lib/site-db";
 import { NewsDetailClient } from "./NewsDetailClient";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -8,11 +7,7 @@ type Props = { params: Promise<{ slug: string }> };
 export const dynamic = "force-dynamic";
 
 async function articles() {
-  try {
-    return (await getPublished()).news;
-  } catch {
-    return news;
-  }
+  return (await getPublishedOrEmpty()).news;
 }
 
 export async function generateMetadata({ params }: Props) {

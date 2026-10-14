@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 import { navLinks, site } from "@/data/content";
 
 export function Footer() {
@@ -7,13 +7,7 @@ export function Footer() {
     <footer className="bg-navy text-white">
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:grid-cols-2 md:px-8 lg:grid-cols-12">
         <div className="lg:col-span-5">
-          <Image
-            src="/images/Logo.png"
-            alt={site.name}
-            width={220}
-            height={60}
-            className="h-12 w-auto object-contain brightness-0 invert"
-          />
+          <BrandLogo tone="light" />
           <p className="mt-6 max-w-sm text-sm leading-relaxed text-white/60">
             Affordable live training for oil, gas, energy, and emerging technology
             professionals worldwide.
@@ -64,7 +58,7 @@ export function Footer() {
           </h3>
           <ul className="mt-4 space-y-3 text-sm text-white/70">
             <li>
-              <a href={`mailto:${site.email}`} className="hover:text-white">
+              <a href={`mailto:${site.email}`} className="break-words hover:text-white">
                 {site.email}
               </a>
             </li>

@@ -223,6 +223,21 @@ export async function getPublished(): Promise<PublishedCatalog> {
   };
 }
 
+const emptyCatalog: PublishedCatalog = {
+  courses: [],
+  internships: [],
+  news: [],
+  events: [],
+};
+
+export async function getPublishedOrEmpty(): Promise<PublishedCatalog> {
+  try {
+    return await getPublished();
+  } catch {
+    return emptyCatalog;
+  }
+}
+
 export async function readAdminStore() {
   return readStoreDoc();
 }
